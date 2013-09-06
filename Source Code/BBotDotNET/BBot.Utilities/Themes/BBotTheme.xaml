@@ -1,0 +1,25 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="cPurpleGray">#FF2D2D30</Color> <!-- 45 45 48 PurpleGray -->
+    <Color x:Key="cLightGray">#FF252525</Color> <!-- 37 37 37 LightGray -->
+    <Color x:Key="cMidGray">#FF1E1E1E</Color> <!-- 30 30 30 MidGray-->
+    <Color x:Key="cDarkGray">#FF1E1E1E</Color>  <!-- 28 28 28 DarkGray-->
+    <Color x:Key="cBlack">#FF000000</Color> <!-- 0 Black -->
+    <Color x:Key="cHighlightGray">#FF686868</Color> <!-- 104 104 104 HighlightGray-->
+    <Color x:Key="cButtonFaceGray">#FF686868</Color> <!-- 112 112 112 ButtonFaceVeryLightGray-->
+    <Color x:Key="cLightBlue">#FF3787D6</Color> <!-- 55 135 214 LightBlue -->
+    <Color x:Key="cWhite">#FFFFFF</Color> <!-- White -->
+
+
+    <SolidColorBrush x:Key="PurpleGrayBrush" Color="{StaticResource cPurpleGray}"/>
+    <SolidColorBrush x:Key="LightGrayBrush" Color="{StaticResource cLightGray}"/>
+    <SolidColorBrush x:Key="MidGrayBrush" Color="{StaticResource cMidGray}"/>
+    <SolidColorBrush x:Key="DarkGrayBrush" Color="{StaticResource cDarkGray}"/>
+    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource cBlack}"/>
+    <SolidColorBrush x:Key="HighlightGrayBrush" Color="{StaticResource cHighlightGray}"/>
+    <SolidColorBrush x:Key="ButtonFaceGrayBrush" Color="{StaticResource cButtonFaceGray}"/>
+    <SolidColorBrush x:Key="LightBlueBrush" Color="{StaticResource cLightBlue}"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource cWhite}"/>
+    
+</ResourceDictionary>

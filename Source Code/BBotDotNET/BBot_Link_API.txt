@@ -1,0 +1,51 @@
+BBot API Definition
+
+This document defines a simple set of op-codes that will be used to send data from 
+the .NET front end over xbee serial to the BeagleBone program that will parse the 
+commands and run/route them accordingly.
+
+Start with a letter for the catigory code.  (ie. V for Voice, L for Legs)
+Then followed by a two digit function number.
+Then a space and then the function's parameter(s) - parameters delimited by spaces
+Message end is terminated with a ";" symbol
+
+Example: A message to Speak now: *V01 Boy this is an intersting sentence!;
+
+Voice
+--------------------------------------------------------------------------------------
+Command Code V
+
+00=	Settings Listing
+		Params
+			1st = voice type (0 to 8)
+			2nd = speed (75 to 600 wpm)
+			3rd = volume (-48 to 18 db)
+01=	Talk now
+		Params
+			1st = "A sentence to speak right away."
+02= Talk buffer
+		Params
+			1st = "Adds a sentence to the talk buffer"
+03= Start speaking the talk content of the talk buffer
+04= Clear the Talk Buffer
+05= Stop speaking
+
+
+Legs (Drive)
+---------------------------------------------------------------------------------------
+Command Code L
+
+00= Send new throttle
+		Params
+		1st = left throttle (0 to 200 percent where 100 is stopped and >100 is forward)
+		2nd = right throttle (0 to 200 percent where 100 is topped and >100 is forward)
+01= Set Control to DX6i Remote
+02= Set Control to Software
+
+
+Custom (Buttons mostly)
+---------------------------------------------------------------------------------------
+Command Code C
+
+00= Set Debug Overlay on Video Screen
+01= Clear Debug Overlay on Video Screen 

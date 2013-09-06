@@ -1,0 +1,43 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace BBot
+{
+    /// <summary>
+    /// Interaction logic for UserControl1.xaml
+    /// </summary>
+    public partial class QuickButtonsView : UserControl
+    {
+        public QuickButtonsView()
+        {
+            InitializeComponent();
+        }
+
+        private void Button_Click_SetDebugOverlay(object sender, RoutedEventArgs e)
+        {
+           QuickButtonsViewModel v = (QuickButtonsViewModel)DataContext;
+           v.QuickButtonsModel.SetDebugOverlayOnScreen();
+        }
+
+        
+        private void Button_Click_ClearDebugOverlay(object sender, RoutedEventArgs e)
+        {
+           QuickButtonsViewModel v = (QuickButtonsViewModel)DataContext;
+           v.QuickButtonsModel.ClearDebugOverlayOnScreen();
+        }
+
+
+
+    }
+}
