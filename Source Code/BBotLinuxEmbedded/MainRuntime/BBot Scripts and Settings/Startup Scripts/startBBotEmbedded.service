@@ -1,0 +1,10 @@
+[Unit]
+Description=Start BBot Embedded Program
+
+[Service]
+WorkingDirectory=/home/root/
+ExecStart=/home/root/BBot_Embedded
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
