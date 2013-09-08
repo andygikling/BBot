@@ -19,10 +19,10 @@
 #include <stdlib.h>
 #include <semaphore.h>
 #include <pthread.h>
-
-#include <SimpleGPIO.h>
+#include <ctime>
 
 #include <BBoneConstants.h>
+#include <Utilities/SimpleGPIO.h>
 #include <Voice/Voice.h>
 #include <Legs/Legs.h>
 #include <Mark1FPGA/Mark1FPGA.h>
@@ -78,6 +78,11 @@ Mark1FPGA *mark1FPGA_thread_ptr;
 
 int main(int argc,char** argv)
 {
+	//Here we sleep to allow other start up processes to finish
+	//Specifically, we want the RTC clock time to be set before
+	//this process starts
+	sleep(1);
+
 	cout << "BBot Main Program - Running" << endl;
 
 	cout << "Print: ListenThread : Creating Output Debug File" << endl;
@@ -88,9 +93,6 @@ int main(int argc,char** argv)
 	gpio_export(MARK1_SOFTWARE_RESET_N);
 	gpio_set_dir(MARK1_SOFTWARE_RESET_N, OUTPUT_PIN);
 	gpio_set_value(MARK1_SOFTWARE_RESET_N, LOW);
-
-	//The older way of setting the BBone's pin mux
-	//initializeTIPinMux_K3Dot2();
 
 	//This is what we use to set the newer BeagleBone Black (Linux kernel 3.8)
 	//settings / device tree
@@ -245,20 +247,28 @@ int initializeUART1()
 
 int createLogOutputFile()
 {
-	ifstream logFile(PATH_TO_DEBUG_FILE);
+	ifstream logFile(PATH_TO_LISTEN_THREAD_DEBUG_FILE);
 	if(logFile.good())
 	{
 		//File exists - kill it
 		logFile.close();
-		unlink(PATH_TO_DEBUG_FILE);
+		unlink(PATH_TO_LISTEN_THREAD_DEBUG_FILE);
 	}
 	else
 	{
 		logFile.close();
 	}
 
-	debugFileStream.open(PATH_TO_DEBUG_FILE, std::ofstream::out);
-	debugFileStream << "BBot Log File Created! (Date/Time)\r\n";
+	time_t now = time(0);
+	// convert now to string form
+	char* dt = ctime(&now);
+	std::string dateAndTime(dt);
+	dateAndTime.erase(dateAndTime.length()-1, 2);
+
+	std::string entry = "BBot Listen Thread Log File Created!" + dateAndTime + "\r\n";
+
+	debugFileStream.open(PATH_TO_LISTEN_THREAD_DEBUG_FILE, std::ofstream::out);
+	debugFileStream << entry;
 	debugFileStream.flush();
 	return 1;
 }
@@ -267,7 +277,7 @@ int setTextOutputFileSimlink()
 {
 	//The BBot Qt program is looking for a file called text.txt, here we make a simlink to
 	//the file this program writes to for debug info
-	int a = symlink(PATH_TO_DEBUG_FILE, PATH_TO_DEBUG_FILE_SIMLINK);
+	int a = symlink(PATH_TO_LISTEN_THREAD_DEBUG_FILE, PATH_TO_DEBUG_FILE_SIMLINK);
 	if (a < 0)
 	{
 		addToLog("ListenThread", "Debug Log Simlink Created", true);
@@ -323,7 +333,7 @@ int parseMessage(char *msg, int length)
 
 	//All messages are set with \r at the end, here we remove it to make the
 	//log look correct...
-	std::string logString = "Message Contents: " + s.erase(s.length()-2, 2);
+	std::string logString = "Message Contents: " + s.erase(s.length()-1, 2);
 	addToLog("ListenThread", logString, true);
 
 	int f = s.find_first_of(" ");
@@ -340,6 +350,7 @@ int parseMessage(char *msg, int length)
 			strcpy(&v[1], splitMessage[1].c_str());
 			strcat(v, "\r");
 			talk(v);
+			usleep(5000);
 		}
 		// speed (75..600)
 		if(splitMessage.size() >= 3)
@@ -348,6 +359,7 @@ int parseMessage(char *msg, int length)
 			strcpy(&v[1], splitMessage[2].c_str());
 			strcat(v, "\r");
 			talk(v);
+			usleep(5000);
 		}
 		// volume (-48..18 db)
 		if(splitMessage.size() >= 4)
@@ -356,6 +368,7 @@ int parseMessage(char *msg, int length)
 			strcpy(&v[1], splitMessage[3].c_str());
 			strcat(v, "\r");
 			talk(v);
+			usleep(5000);
 		}
 	}
 	else if(*splitMessage.begin() == VOICE_FUNC_1)
@@ -364,6 +377,7 @@ int parseMessage(char *msg, int length)
 		strcpy(&v[1], operand.c_str());
 		strcat(v, "\r");
 		talk(v);
+		usleep(5000);
 	}
 	else if(*splitMessage.begin() == VOICE_FUNC_2)
 	{
@@ -381,8 +395,9 @@ int parseMessage(char *msg, int length)
 	{
 		// stop speaking
 		v[0] = 'X';
-		v[1] = '\r';
+		strcpy(&v[1], "\r");
 		talk(v);
+		usleep(5000);
 	}
 
 	else if(*splitMessage.begin() == LEGS_FUNC_0)
@@ -470,7 +485,19 @@ int talk(char *msg)
 
 int addToLog(std::string Source, std::string Content, bool AlsoPrintf)
 {
+	// current date/time based on current system
+	//time_t now = time(0);
+
+	// convert now to string form
+	//char* dt = ctime(&now);
+
+	//std::string dateAndTime(dt);
+	//dateAndTime.erase(dateAndTime.length()-1, 2);
+
+	//std::string entry = dateAndTime + " : " + Source + " : " + Content + "\r\n";
+
 	std::string entry = Source + " : " + Content + "\r\n";
+
 	debugFileStream << entry;
 	debugFileStream.flush();
 

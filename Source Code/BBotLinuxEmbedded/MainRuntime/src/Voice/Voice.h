@@ -41,6 +41,8 @@ private:
 	int AcknowledgeMessage(std::string AckMessage);
 	int addToLog(std::string Source, std::string Content, bool AlsoPrintf);
 
+	int CreateLogOutputFile();
+
 	std::ofstream debugFileStream;
 
 	int initializeUART4();

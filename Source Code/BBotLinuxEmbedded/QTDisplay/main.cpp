@@ -3,10 +3,15 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
+#include <QWSServer>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    //Remove the mouse pointer from view
+    QWSServer::setCursorVisible( false );
+
     MyGraphicsScene scene;
     QGraphicsView view(&scene);
 
@@ -25,17 +30,3 @@ int main(int argc, char *argv[])
 }
 
 
-
-
-/*#include "mainwindow.h"
-#include <QApplication>
-
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    
-    return a.exec();
-}
-*/

@@ -23,9 +23,7 @@ Voice::Voice(int UARTfd, Mark1_DataBlock_TX &DataBlock_TX, Mark1_DataBlock_RX &D
 
 	UARTfd_ = UARTfd;
 
-	debugFileStream.open(PATH_TO_DEBUG_FILE, std::ofstream::out);
-	debugFileStream << "VoiceThread: Log Handle Created! (Date/Time)\r\n";
-	debugFileStream.flush();
+	CreateLogOutputFile();
 
 	initializeUART4();
 
@@ -62,6 +60,9 @@ void* pstart_Voice(void* ref) {
 // object's entry point
 void Voice::Run()
 {
+
+	addToLog("VoiceThread", "Main Loop Entry", true);
+
 	while(1)
 	{
 
@@ -216,6 +217,35 @@ int Voice::addToLog(std::string Source, std::string Content, bool AlsoPrintf)
 		printf(c);
 	}
 
+	return 1;
+}
+
+int Voice::CreateLogOutputFile()
+{
+	ifstream logFile(PATH_TO_VOICE_THREAD_DEBUG_FILE);
+	if(logFile.good())
+	{
+		//File exists - kill it
+		logFile.close();
+		unlink(PATH_TO_VOICE_THREAD_DEBUG_FILE);
+	}
+	else
+	{
+		logFile.close();
+	}
+
+	time_t now = time(0);
+	// convert now to string form
+	char* dt = ctime(&now);
+	std::string dateAndTime(dt);
+	dateAndTime.erase(dateAndTime.length()-1, 2);
+
+	std::string entry = "BBot Voice Thread Log File Created!" + dateAndTime + "\r\n";
+
+
+	debugFileStream.open(PATH_TO_VOICE_THREAD_DEBUG_FILE, std::ofstream::out);
+	debugFileStream << entry;
+	debugFileStream.flush();
 	return 1;
 }
 

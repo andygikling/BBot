@@ -61,7 +61,7 @@ private:
 
 	std::ofstream debugFileStream;
 
-	int addToLog(std::string Source, std::string Content, bool AlsoPrintf);
+	int AddToLog(std::string Source, std::string Content, bool AlsoPrintf);
 
 	bool MotorsSignalSourceSelect_;
 	int8_t LeftMotorSpeed_;
@@ -70,6 +70,8 @@ private:
 	int AcknowledgeMessage(std::string AckMessage);
 
 	int UpdateDataBlock();
+
+	int CreateLogOutputFile();
 
 	void Run();
 

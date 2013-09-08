@@ -16,14 +16,11 @@ void* pstart_Legs(void* ref);
 Legs::Legs(int UART1fd, Mark1_DataBlock_TX &DataBlock_TX, Mark1_DataBlock_RX &DataBlock_RX) :
 		Mark1_DataBlock_TX_(DataBlock_TX), Mark1_DataBlock_RX_(DataBlock_RX)
 {
-
 	sem_init(&sem, 0, 0);
 
 	UARTfd_ = UART1fd;
 
-	debugFileStream.open(PATH_TO_DEBUG_FILE, std::ofstream::out);
-	debugFileStream << "VoiceThread: Log Handle Created! (Date/Time)\r\n";
-	debugFileStream.flush();
+	CreateLogOutputFile();
 
 	MotorsSignalSourceSelect_ = false;
 	LeftMotorSpeed_ = 0x00;
@@ -70,7 +67,7 @@ int Legs::SetControlSource(bool Source)
 void Legs::Run()
 {
 
-    addToLog("LegsThread", "Run Entry Point", true);
+    AddToLog("LegsThread", "Main Loop Entry", true);
 
 	while(1)
 	{
@@ -91,7 +88,7 @@ int Legs::UpdateDataBlock()
 
 int Legs::AcknowledgeMessage(std::string AckMessage)
 {
-	addToLog("LegsThread", "Got New Leg Params - Sending Message Acknowledge", true);
+	AddToLog("LegsThread", "Got New Leg Params - Sending Message Acknowledge", true);
 
 	char *msg = new char[AckMessage.size()];
 	strcpy(msg, AckMessage.c_str());
@@ -106,7 +103,7 @@ int Legs::AcknowledgeMessage(std::string AckMessage)
 }
 
 
-int Legs::addToLog(std::string Source, std::string Content, bool AlsoPrintf)
+int Legs::AddToLog(std::string Source, std::string Content, bool AlsoPrintf)
 {
 	std::string entry = Source + " : " + Content + "\r\n";
 	debugFileStream << entry;
@@ -123,5 +120,31 @@ int Legs::addToLog(std::string Source, std::string Content, bool AlsoPrintf)
 	return 1;
 }
 
+int Legs::CreateLogOutputFile()
+{
+	ifstream logFile(PATH_TO_LEGS_THREAD_DEBUG_FILE);
+	if(logFile.good())
+	{
+		//File exists - kill it
+		logFile.close();
+		unlink(PATH_TO_LEGS_THREAD_DEBUG_FILE);
+	}
+	else
+	{
+		logFile.close();
+	}
 
+	time_t now = time(0);
+	// convert now to string form
+	char* dt = ctime(&now);
+	std::string dateAndTime(dt);
+	dateAndTime.erase(dateAndTime.length()-1, 2);
+
+	std::string entry = "BBot Legs Thread Log File Created!" + dateAndTime + "\r\n";
+
+	debugFileStream.open(PATH_TO_LEGS_THREAD_DEBUG_FILE, std::ofstream::out);
+	debugFileStream << entry;
+	debugFileStream.flush();
+	return 1;
+}
 

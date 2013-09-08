@@ -32,6 +32,8 @@ private:
     QGraphicsPixmapItem pixmap_;
     QPainter painter_;
     QSize size_;
+
+    int imageLoopCounter_;
 };
 
 #endif // MAINWINDOW_H

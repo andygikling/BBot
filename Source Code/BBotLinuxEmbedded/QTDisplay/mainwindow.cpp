@@ -7,6 +7,7 @@
 #include <QPainter>
 #include <QTextDocument>
 #include <QTextBlock>
+#include <Qt>
 
 MyGraphicsScene::MyGraphicsScene() :
     QGraphicsScene(),
@@ -27,14 +28,19 @@ void MyGraphicsScene::SetSize(QSize size)
 
     QTimer *timer = new QTimer(this);
     if(connect(timer, SIGNAL(timeout()), this, SLOT(Update_())))
-       timer->start(3000);
+       timer->start(4000);
     else
         Update_();
 }
 
 void MyGraphicsScene::Update_()
 {
-    GetImageList_("/home/root/images");
+    imageLoopCounter_++;
+    if (imageLoopCounter_ == 10)
+    {
+        GetImageList_("/home/root/images");
+        imageLoopCounter_ = 0;
+    }
 
     //Here we'll display the images at random
     int high = filenameList_.length();

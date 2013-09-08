@@ -16,9 +16,7 @@ Mark1FPGA::Mark1FPGA(Mark1_DataBlock_TX &DataBlock_TX, Mark1_DataBlock_RX &DataB
 {
 	sem_init(&sem, 0, 0);
 
-	debugFileStream.open(PATH_TO_DEBUG_FILE, std::ofstream::out);
-	debugFileStream << "Mark1FPGAThread: Log Handle Created! (Date/Time)\r\n";
-	debugFileStream.flush();
+	CreateLogOutputFile();
 
 	pthread_t thread;
 	int e = pthread_create(&thread, NULL, pstart_Mark1FPGA, (void*)this);
@@ -27,7 +25,6 @@ Mark1FPGA::Mark1FPGA(Mark1_DataBlock_TX &DataBlock_TX, Mark1_DataBlock_RX &DataB
 Mark1FPGA::~Mark1FPGA() {
 	this->spiClose();
 }
-
 
 // thread entry point
 void* pstart_Mark1FPGA(void* ref) {
@@ -39,10 +36,7 @@ void* pstart_Mark1FPGA(void* ref) {
 // object's entry point
 void Mark1FPGA::Run()
 {
-
-	sleep(2);
-
-	addToLog("Mark1FPGAThread", "Run Entry Point", true);
+	addToLog("Mark1FPGAThread", "Main Loop Entry", true);
 
 	this->mode = SPI_MODE_0 ;
 	this->bitsPerWord = SPI_BITS_PER_WORD;
@@ -60,10 +54,6 @@ void Mark1FPGA::Run()
 
 		usleep(SPI_MARK1_DATABLOCK_UPDATE_RATE_US);
 
-		//addToLog("Mark1FPGAThread", "Begin Writing Data Block", true);
-
-		std::cout << "Print: Mark1FPGAThread Begin Write Data Block" << std::endl;
-
 		//Copy data block into local array
 		//The local array is what's sent out the door to the Mark1
 		//It is also overwritten with the new SPI data in from the Mark1
@@ -74,9 +64,6 @@ void Mark1FPGA::Run()
 		//addToLog("Mark1FPGAThread", "Encoder Count Left Is" + , true);
 
 		//addToLog("Mark1FPGAThread", "End Writing Data Block", true);
-
-		std::cout << "Print: Mark1FPGAThread End Write Data Block" << std::endl;
-
 
 
 	}
@@ -214,3 +201,30 @@ int Mark1FPGA::addToLog(std::string Source, std::string Content, bool AlsoPrintf
 	return 1;
 }
 
+int Mark1FPGA::CreateLogOutputFile()
+{
+	ifstream logFile(PATH_TO_MARK1FPGA_THREAD_DEBUG_FILE);
+	if(logFile.good())
+	{
+		//File exists - kill it
+		logFile.close();
+		unlink(PATH_TO_MARK1FPGA_THREAD_DEBUG_FILE);
+	}
+	else
+	{
+		logFile.close();
+	}
+
+	time_t now = time(0);
+	// convert now to string form
+	char* dt = ctime(&now);
+	std::string dateAndTime(dt);
+	dateAndTime.erase(dateAndTime.length()-1, 2);
+
+	std::string entry = "BBot Mark1FPGA Thread Log File Created!" + dateAndTime + "\r\n";
+
+	debugFileStream.open(PATH_TO_MARK1FPGA_THREAD_DEBUG_FILE, std::ofstream::out);
+	debugFileStream << entry;
+	debugFileStream.flush();
+	return 1;
+}

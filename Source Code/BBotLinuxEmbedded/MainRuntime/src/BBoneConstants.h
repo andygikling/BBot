@@ -13,7 +13,10 @@
 #define BBONECONSTANTS_H_
 
 #define PINMUX_PATH_K3Dot2 "/sys/kernel/debug/omap_mux"
-#define PATH_TO_DEBUG_FILE "/home/root/text.txt"
+#define PATH_TO_LISTEN_THREAD_DEBUG_FILE "/home/root/Debug_ListenThread.txt"
+#define PATH_TO_VOICE_THREAD_DEBUG_FILE "/home/root/Debug_VoiceThread.txt"
+#define PATH_TO_LEGS_THREAD_DEBUG_FILE "/home/root/Debug_LegsThread.txt"
+#define PATH_TO_MARK1FPGA_THREAD_DEBUG_FILE "/home/root/Debug_Mark1FPGAThread.txt"
 #define PATH_TO_DEBUG_FILE_SIMLINK "/home/root/images/text.txt"
 
 //UART Settings
