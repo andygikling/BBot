@@ -1,6 +1,0 @@
-#!/bin/bash
-
-echo "Build ANDY-BBone"
-echo "Compiling the overlay from .dts to .dtbo"
-
-dtc -O dtb -o BBot-Overlay-00A0.dtbo -b 0 -@ BBot-Overlay.dts
