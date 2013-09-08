@@ -19,6 +19,8 @@ namespace BBot
         private const string op_Control_Select_Software = "L02";
         private const string op_Termination = "\r";
 
+        int motorMixedLeft, motorMixedRight;
+
         IRobotConnection connection;
 
         public LegsModel( IRobotConnection Connection )
@@ -44,7 +46,7 @@ namespace BBot
             set
             {
                 throttleLeft = value;
-                NotifyPropertyChanged( "ThrottleLeft" );
+                NotifyPropertyChanged("ThrottleLeft");
                 NotifyPropertyChanged("ThrottleLeft_Inverted");
                 NotifyPropertyChanged("ThrottleLeft_Percent");
             }
@@ -59,7 +61,7 @@ namespace BBot
             set
             {
                 throttleRight = value;
-                NotifyPropertyChanged( "ThrottleRight" );
+                NotifyPropertyChanged("ThrottleRight");
                 NotifyPropertyChanged("ThrottleRight_Inverted");
                 NotifyPropertyChanged("ThrottleRight_Percent");
             }
@@ -154,7 +156,6 @@ namespace BBot
             int temp = LowestThrottle();
             this.ThrottleLeft = temp + this.ThrottleInterval;
             this.ThrottleRight = temp + this.ThrottleInterval;
-            UpdateMixedLeftAndRightThrottle();
             SendThrottleFormatted();
         }
 
@@ -163,21 +164,18 @@ namespace BBot
             int temp = LowestThrottle();
             this.ThrottleLeft = temp - this.ThrottleInterval;
             this.ThrottleRight = temp - this.ThrottleInterval;
-            UpdateMixedLeftAndRightThrottle();
             SendThrottleFormatted();
         }
 
         public void Throttle_Left()
         {
             this.ThrottleRight += this.ThrottleInterval;
-            UpdateMixedLeftAndRightThrottle();
             SendThrottleFormatted();
         }
 
         public void Throttle_Right()
         {
             this.ThrottleLeft += this.ThrottleInterval;
-            UpdateMixedLeftAndRightThrottle();
             SendThrottleFormatted();
         }
 
@@ -195,26 +193,39 @@ namespace BBot
 
         void UpdateMixedLeftAndRightThrottle()
         {
-            //Because the motor drives are running in a mix mode
-            //Left and right motor speeds need to be converted into 
+            //Because the motor drives are running in a "mix mode"
+            //left and right motor speeds need to be converted into 
             //the correct left and right "mixed" equivelet.
             //We will do that here, then simply send down the desired mixed outputs
             //to the embedded.
 
-            //First determine quadrent
-           // if( (ThrottleLeft_Percent > ThrottleRight_Percent) )
+            //In general the right motor's pulse train is used as a throttle forward or backward
+            //and the lef motor pulse train controls the "trim" or reletive speed between the wheels.
 
+            //First determine the average power.  Forward or backward.
+            double averagePower = (this.ThrottleLeft + this.ThrottleRight) / 2;
+            motorMixedRight = (int)averagePower;
 
-
+            double trim = Math.Abs((this.ThrottleLeft - this.ThrottleRight)) / 2;
+            if (this.ThrottleLeft >= this.throttleRight)
+            {
+                motorMixedLeft = (int)trim + 100;
+            }
+            else
+            {
+                motorMixedLeft = (int)trim - 100;
+            }
         }
         
         void SendThrottleFormatted()
         {
+            UpdateMixedLeftAndRightThrottle();
+
             string msg = op_LegsWalk;
             msg += " ";
-            msg += this.ThrottleLeft.ToString();
+            msg += motorMixedLeft.ToString();
             msg += " ";
-            msg += this.ThrottleRight.ToString();
+            msg += motorMixedRight.ToString();
             msg += op_Termination;
             SendMessage( msg );
         }
