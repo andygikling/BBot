@@ -1,0 +1,10 @@
+[Unit]
+Description=Start BBot Qt GUI
+
+[Service]
+WorkingDirectory=/home/root/
+ExecStart=/home/root/BBot-Adds3 -qws
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Start BBot Embedded Program
+
+[Service]
+WorkingDirectory=/usr/share/rtc_ds1307
+ExecStart=/home/root BBot_SetSystemTime.sh
+KillMode=process
+SyslogIdentifier=rtc_ds1307
+
+[Install]
+WantedBy=multi-user.target
