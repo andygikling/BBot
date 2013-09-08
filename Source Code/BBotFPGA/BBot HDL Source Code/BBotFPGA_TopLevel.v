@@ -92,9 +92,13 @@ module BBotFPGA_TopLevel(
 //-----------------------------------------------------------------------------------------
 //	Variable Definitions
 //-----------------------------------------------------------------------------------------
-	parameter RC_ZeroPoint_Pulses = 75000;
+	//The RC_LowLimit will correspond to a 1.0ms pulse which is the limit in one direction.
+	//However LeftMotorSpeed_Percent's range is 0 to 200.  Center of throw is then 100 (being 
+	//equal to a 1.5ms pulse) which will leave the motors at rest.
+	parameter RC_LowLimit_Pulses = 32'd50000;
+	parameter RC_ZeroPoint_Pulses = 32'd75000;
 	//percent * 250 = 25000 where 25000 50MHz pulses (.5ms) is the total range in one direction
-	parameter RC_RangeMultiplier = 	250;
+	parameter RC_RangeMultiplier = 	32'd250;
 	
 	reg[7:0] LED_reg;
 	
@@ -151,10 +155,14 @@ module BBotFPGA_TopLevel(
 			LED_reg[7:0] <= 8'h00;
 			CurrentEncoderCount_Left_reg[31:0] <= 32'h80000000;	//Start at half way to avoid encoder roll over completely...
 			CurrentEncoderCount_Right_reg[31:0] <= 32'h80000000;
-			LeftMotorSpeed_Percent[7:0] <= 8'd0;
-			RightMotorSpeed_Percent[7:0] <= 8'd0;
-			CameraPanPosition_Percent[31:0] <= 32'd0;
-			CameraTiltPosition_Percent[31:0] <= 32'd0;
+			LeftMotorSpeed_Percent[7:0] <= 8'd100;
+			RightMotorSpeed_Percent[7:0] <= 8'd100;
+			CameraPanPosition_Percent[31:0] <= 32'd100;
+			CameraTiltPosition_Percent[31:0] <= 32'd100;
+			LeftMotorSpeed_50MHzPulses <= RC_ZeroPoint_Pulses;
+			RightMotorSpeed_50MHzPulses <= RC_ZeroPoint_Pulses;
+			CameraPanPosition_50MHzPulses <= RC_ZeroPoint_Pulses;
+			CameraTiltPosition_50MHzPulses <= RC_ZeroPoint_Pulses;
 			
 			SPI_do_o_reg[31:0] <= 32'd0;
 			//Data sent back to the beaglebone
@@ -292,16 +300,11 @@ module BBotFPGA_TopLevel(
 				
 			end
 		
-
 			//Convert speed percent set point to pulses for our 4 RC channels
-			LeftMotorSpeed_50MHzPulses <= RC_ZeroPoint_Pulses + (LeftMotorSpeed_Percent * RC_RangeMultiplier);
-			RightMotorSpeed_50MHzPulses <= RC_ZeroPoint_Pulses + (RightMotorSpeed_Percent * RC_RangeMultiplier);
-			CameraPanPosition_50MHzPulses <= RC_ZeroPoint_Pulses + (CameraPanPosition_Percent * RC_RangeMultiplier);
-			CameraTiltPosition_50MHzPulses <= RC_ZeroPoint_Pulses + (CameraTiltPosition_Percent * RC_RangeMultiplier);
-			
-			
-			
-			
+			LeftMotorSpeed_50MHzPulses <= RC_LowLimit_Pulses + (LeftMotorSpeed_Percent * RC_RangeMultiplier);
+			RightMotorSpeed_50MHzPulses <= RC_LowLimit_Pulses + (RightMotorSpeed_Percent * RC_RangeMultiplier);
+			CameraPanPosition_50MHzPulses <= RC_LowLimit_Pulses + (CameraPanPosition_Percent * RC_RangeMultiplier);
+			CameraTiltPosition_50MHzPulses <= RC_LowLimit_Pulses + (CameraTiltPosition_Percent * RC_RangeMultiplier);
 			
 		end
 		
@@ -458,9 +461,9 @@ module BBotFPGA_TopLevel(
 	//At 50MHz, 1.5ms is 75000 pulses and the range is then .5ms = 25000 pulses
 	gh_Pulse_Generator LeftMotorSignalGen(
 		.clk(OSC_FPGA),
-		.rst(1'h0),
+		.rst(~Reset_l),
 		.Period(32'd1100000),
-		.Pulse_Width(32'd90000),
+		.Pulse_Width(LeftMotorSpeed_50MHzPulses),
 		//.ENABLE(RC_MotorSignalSourceSelect),
 		.ENABLE(1'h1),
 		.Pulse(RC_MotorPulseGen_Left)
@@ -469,8 +472,7 @@ module BBotFPGA_TopLevel(
 	//Signal Generator for right motor
 	gh_Pulse_Generator RightMotorSignalGen(
 		.clk(OSC_FPGA),
-		//.rst(~Reset_l),
-		.rst(1'h0),
+		.rst(~Reset_l),
 		.Period(32'd1100000),
 		.Pulse_Width(RightMotorSpeed_50MHzPulses),
 		//.ENABLE(RC_MotorSignalSourceSelect),
@@ -484,7 +486,8 @@ module BBotFPGA_TopLevel(
 		.rst(~Reset_l),
 		.Period(32'd1100000),
 		.Pulse_Width(CameraPanPosition_50MHzPulses),
-		.ENABLE(RC_CameraSignalSourceSelect),
+		//.ENABLE(RC_CameraSignalSourceSelect),
+		.ENABLE(1'h1),
 		.Pulse(RC_CamPanPulseGen)
 	);
 	
@@ -494,7 +497,8 @@ module BBotFPGA_TopLevel(
 		.rst(~Reset_l),
 		.Period(32'd1100000),
 		.Pulse_Width(CameraTiltPosition_50MHzPulses),
-		.ENABLE(RC_CameraSignalSourceSelect),
+		//.ENABLE(RC_CameraSignalSourceSelect),
+		.ENABLE(1'h1),
 		.Pulse(RC_CamTiltPulseGen)
 	);
 	
