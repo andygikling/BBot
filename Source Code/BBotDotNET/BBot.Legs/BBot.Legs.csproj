@@ -114,6 +114,10 @@
       <Project>{99312e2e-6be5-4768-bfee-ba5e8e8f06d6}</Project>
       <Name>BBot.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LeapMotionControls\LeapMotionWrapper.csproj">
+      <Project>{18d03c6a-e359-48e2-9cf1-7da9f450c285}</Project>
+      <Name>LeapMotionWrapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

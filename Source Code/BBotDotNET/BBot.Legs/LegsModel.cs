@@ -11,6 +11,9 @@ namespace BBot
         int throttleLeft, throttleRight, throttleLeftMixed, throttleRightMixed;
         int throttleInterval;
         bool controlSignalSourceSelect;
+        bool leapMotionEnable;
+
+        BBotLeapMotionWrapper leapWrapper;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -127,6 +130,19 @@ namespace BBot
                 controlSignalSourceSelect = value;
                 Throttle_Stop();
                 SendControlFormatted(value);
+            }
+        }
+
+        public bool LeapMotionEnable
+        {
+            get
+            {
+                return leapMotionEnable;
+            }
+            set
+            {
+                leapMotionEnable = value;
+                leapWrapper = new BBotLeapMotionWrapper();
             }
         }
 

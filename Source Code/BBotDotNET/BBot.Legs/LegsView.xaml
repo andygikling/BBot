@@ -44,7 +44,7 @@
                             <RowDefinition Height=".5*"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="65"/>
+                            <ColumnDefinition Width="60"/>
                             <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="40"/>
@@ -132,9 +132,13 @@
                             Content="{Binding Path=LegsModel.ThrottleRight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="10" Grid.RowSpan="2"/>
 
                         <ToggleSwitch:HorizontalToggleSwitch Grid.Row="1" Grid.Column="7" IsChecked="{Binding LegsModel.ControlSignalSourceSelect, Mode=TwoWay}" 
-                            CheckedContent="Software" UncheckedContent="DX6i Remote" Height="25" Margin="10,5,0,0" Width="150" HorizontalAlignment="Left" VerticalAlignment="Top"
+                            CheckedContent="Software" UncheckedContent="DX6i Remote" Height="25" Margin="10,5,0,0" Width="190" HorizontalAlignment="Left" VerticalAlignment="Top"
                             CheckedBackground="{StaticResource LightBlueBrush}">
                         </ToggleSwitch:HorizontalToggleSwitch>
+                        
+                        <ToggleSwitch:HorizontalToggleSwitch Grid.Row="4" Grid.Column="7" IsChecked="{Binding LegsModel.LeapMotionEnable, Mode=TwoWay}" 
+                        	CheckedContent="Leap Motion Enabled" UncheckedContent="Leap Motion Disabled" Height="25" Margin="10,0,0,5" Width="190" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                        	CheckedBackground="{StaticResource LightBlueBrush}"/>
 
                     </Grid>
                 </TabItem>

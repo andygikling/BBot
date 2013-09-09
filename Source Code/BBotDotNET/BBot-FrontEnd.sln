@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio Express 2012 for Windows Desktop
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BBot.Voice", "BBot.Voice\BBot.Voice.csproj", "{B2A71528-7795-4127-8DD9-4B2580BFEE77}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1AF6C814-BBD2-458D-878A-EFE912DBB4C7} = {1AF6C814-BBD2-458D-878A-EFE912DBB4C7}
@@ -30,6 +30,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BBot.Eye", "BBot.Eye\BBot.Eye.csproj", "{F9A7E17A-07D5-416C-8ABD-97A2A73F7238}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BBot.Utilities", "BBot.Utilities\BBot.Utilities.csproj", "{99312E2E-6BE5-4768-BFEE-BA5E8E8F06D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeapMotionWrapper", "LeapMotionControls\LeapMotionWrapper.csproj", "{18D03C6A-E359-48E2-9CF1-7DA9F450C285}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -131,6 +133,16 @@ Global
 		{99312E2E-6BE5-4768-BFEE-BA5E8E8F06D6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{99312E2E-6BE5-4768-BFEE-BA5E8E8F06D6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{99312E2E-6BE5-4768-BFEE-BA5E8E8F06D6}.Release|x86.ActiveCfg = Release|Any CPU
+		{18D03C6A-E359-48E2-9CF1-7DA9F450C285}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18D03C6A-E359-48E2-9CF1-7DA9F450C285}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18D03C6A-E359-48E2-9CF1-7DA9F450C285}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{18D03C6A-E359-48E2-9CF1-7DA9F450C285}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{18D03C6A-E359-48E2-9CF1-7DA9F450C285}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{18D03C6A-E359-48E2-9CF1-7DA9F450C285}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18D03C6A-E359-48E2-9CF1-7DA9F450C285}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18D03C6A-E359-48E2-9CF1-7DA9F450C285}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{18D03C6A-E359-48E2-9CF1-7DA9F450C285}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{18D03C6A-E359-48E2-9CF1-7DA9F450C285}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
