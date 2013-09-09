@@ -130,7 +130,9 @@ namespace BBot
         {
             // Take snapshot of webcam image.
             WebCamCtrl.TakeSnapshot();
-        }           
+        }
+
+
 
     }
 }

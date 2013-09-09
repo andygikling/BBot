@@ -14,7 +14,6 @@ Example: A message to Speak now: *V01 Boy this is an intersting sentence!;
 Voice
 --------------------------------------------------------------------------------------
 Command Code V
-
 00=	Settings Listing
 		Params
 			1st = voice type (0 to 8)
@@ -34,7 +33,6 @@ Command Code V
 Legs (Drive)
 ---------------------------------------------------------------------------------------
 Command Code L
-
 00= Send new throttle
 		Params
 		1st = left throttle (0 to 200 percent where 100 is stopped and >100 is forward)
@@ -46,9 +44,21 @@ Command Code L
 Custom (Buttons mostly)
 ---------------------------------------------------------------------------------------
 Command Code C
-
 00= Clear Debug Overlay on Video Screen 
 01= Set ListenThread Debug Overlay on Video Screen
 02= Set VoiceThread Debug Overlay on Video Screen
 03= Set LegsThread Debug Overlay on Video Screen
 04= Set Mark1FPGAThread Debug Overlay on Video Screen
+
+
+Eye 
+---------------------------------------------------------------------------------------
+Command Code E
+00= Set remote control pan and tilt
+01= Set software control pan and tilt
+02= Set new software pan and tilt position
+	Params
+		1st = Pan position 0 to 200 where 100 is center of travel
+		2nd = Tilt position 0 to 200 where 100 is center of travel
+
+

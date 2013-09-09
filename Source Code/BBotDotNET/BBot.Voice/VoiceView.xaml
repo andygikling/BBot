@@ -38,7 +38,7 @@
                                 Foreground="{StaticResource LightBlueBrush}" 
                                 Background="{StaticResource MidGrayBrush}" 
                                 BorderBrush="{StaticResource HighlightGrayBrush}"
-                                Text="{Binding Path=VoiceModel.CurrentSentence, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="12">
+                                Text="{Binding Path=VoiceModel.CurrentSentence, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11">
                             <TextBox.InputBindings>
                                 <KeyBinding Gesture="Enter" Command="{Binding SpeakNowCommand}"/>
                                 <KeyBinding Key="Up" Command="{Binding HistoryUpArrowCommand}"/>
@@ -50,7 +50,8 @@
                                     Foreground="{StaticResource LightBlueBrush}"
                                     Background="{StaticResource DarkGrayBrush}"
                                     BorderBrush="{StaticResource HighlightGrayBrush}"
-                                    Text="{Binding Path=VoiceModel.SentenceHistoryWithTimestamp, Mode=TwoWay, Converter={StaticResource ListToStringConverter}, UpdateSourceTrigger=PropertyChanged}" >
+                                    Text="{Binding Path=VoiceModel.SentenceHistoryWithTimestamp, Mode=TwoWay, 
+                                    Converter={StaticResource ListToStringConverter}, UpdateSourceTrigger=PropertyChanged}" FontSize="11" >
                         </TextBox>
 
                     </Grid>

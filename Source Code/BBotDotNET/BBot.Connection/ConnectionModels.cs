@@ -73,7 +73,6 @@ namespace BBot
         }
         #endregion
 
-
         #region Methods
 
 
@@ -128,8 +127,6 @@ namespace BBot
 
     
         #endregion
-
-
 
     }
 

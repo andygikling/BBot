@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="300">
+             d:DesignHeight="200" d:DesignWidth="400">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -24,7 +24,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TabControl x:Name="tab_MainTab" BorderBrush="Black" BorderThickness="2">
+            <TabControl x:Name="tab_MainTab" BorderBrush="{StaticResource HighlightGrayBrush}">
                 <TabItem x:Name="tabItem_QickButtons" Header="Quick Buttons" Margin="-3,-3,0,-1" FontWeight="Bold" BorderBrush="Black">
                     <Grid x:Name="grid_ConnectionCOM" Background="{StaticResource PurpleGrayBrush}" Margin="-4,-4,-4,-4">
                         <Grid.RowDefinitions>

@@ -25,8 +25,6 @@ namespace BBot
         //Make the window's viewModel
         BBotFrontEndViewModel mainWidgetsViewModel;
 
-   
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -37,14 +35,13 @@ namespace BBot
             mainWidgetsViewModel = new BBotFrontEndViewModel();
 
             //Set Widgets' DataContext
-            this.connectionControlView.DataContext = mainWidgetsViewModel.ConnectionViewModel;
-            this.voiceViewControl.DataContext = mainWidgetsViewModel.VoiceViewModel;
-            this.botTerminalControlView.DataContext = mainWidgetsViewModel.BotTerminalViewModel;
+            this.connectionView.DataContext = mainWidgetsViewModel.ConnectionViewModel;
+            this.voiceView.DataContext = mainWidgetsViewModel.VoiceViewModel;
+            this.botTerminalView.DataContext = mainWidgetsViewModel.BotTerminalViewModel;
             this.legsView.DataContext = mainWidgetsViewModel.LegslViewModel;
             this.quickButtonsView.DataContext = mainWidgetsViewModel.QuickButtonsViewModel;
+            this.eyeView.DataContext = mainWidgetsViewModel.EyeViewModel;
             
-            //this.cameraView.DataContext = mainWidgetsViewModel.
-
             this.Closing += BBotMainWindow_Closing;
 		}
 

@@ -25,15 +25,14 @@ namespace BBot
         {
             InitializeComponent();
 
-            this.lbl_COMPortStatus.Visibility = System.Windows.Visibility.Hidden;
-
         }
 
+        /*
         private void ButtonOpen_Click(object sender, RoutedEventArgs e)
         {
             ConnectionViewModel m = (ConnectionViewModel)DataContext;
             m.ComPortConnected = true;
-            lbl_COMPortStatus.Visibility = System.Windows.Visibility.Visible;
+            //lbl_COMPortStatus.Visibility = System.Windows.Visibility.Visible;
 
         }
 
@@ -41,9 +40,9 @@ namespace BBot
         {
             ConnectionViewModel m = (ConnectionViewModel)DataContext;
             m.ComPortConnected = false;
-            lbl_COMPortStatus.Visibility = System.Windows.Visibility.Hidden;
+            //lbl_COMPortStatus.Visibility = System.Windows.Visibility.Hidden;
         }
-
+        */
      
     }
 	

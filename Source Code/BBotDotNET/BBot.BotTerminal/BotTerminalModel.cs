@@ -67,7 +67,7 @@ namespace BBot
 
         public void SendMessage(string Message)
         {
-            connection.SendMessage(Message + "\r"); //Embedded code is expecting a \r to delimit the end of a message
+            connection.SendMessage(Message + " \r"); //Embedded code is expecting a \r to delimit the end of a message
         }
 
         public void ReceiveMessage(string Message)

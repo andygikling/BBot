@@ -14,6 +14,7 @@ namespace BBot
         BotTerminalViewModel botTerminalViewModel;
         LegsViewModel legsViewModel;
         QuickButtonsViewModel quickButtonsViewModel;
+        EyeViewModel eyeViewModel;
 
         //And make a list of Widgets that will be in the view and get passed around
         List<IRobotWidget> bBotWidgetsList;
@@ -26,31 +27,22 @@ namespace BBot
         public BBotFrontEndViewModel()
         {
             connectionViewModel = new ConnectionViewModel();
-            voiceViewModel = new VoiceViewModel( connectionViewModel.ConnectionCOMModel );
-            botTerminalViewModel = new BotTerminalViewModel( connectionViewModel.ConnectionCOMModel );
-            legsViewModel = new LegsViewModel( connectionViewModel.ConnectionCOMModel );
-            quickButtonsViewModel = new QuickButtonsViewModel( connectionViewModel.ConnectionCOMModel );
+            voiceViewModel = new VoiceViewModel(connectionViewModel.ConnectionCOMModel);
+            botTerminalViewModel = new BotTerminalViewModel(connectionViewModel.ConnectionCOMModel);
+            legsViewModel = new LegsViewModel(connectionViewModel.ConnectionCOMModel);
+            quickButtonsViewModel = new QuickButtonsViewModel(connectionViewModel.ConnectionCOMModel);
+            eyeViewModel = new EyeViewModel(connectionViewModel.ConnectionCOMModel);
 
             //Add widgets to a list
+            //Currently this list isn't used
             bBotWidgetsList = new List<IRobotWidget>();
-            bBotWidgetsList.Add( voiceViewModel.VoiceModel );
-            bBotWidgetsList.Add( botTerminalViewModel.BotTerminalModel );
-            bBotWidgetsList.Add( legsViewModel.LegsModel );
-            bBotWidgetsList.Add( quickButtonsViewModel.QuickButtonsModel );
-
-            //Link events
-            //All messages pass through Connection, here we'll have Connection keep the Terminal updated
-            //bBotWidgetsList[(int)WidgetList.Connection].SendMessageOut += new EventHandler<StringEventArgs>(watchConnection);
-            
-            //Voice message to Connection
-           // bBotWidgetsList[(int)WidgetList.Voice].SendMessageOut += new EventHandler<StringEventArgs>(sendVoiceData);
-            
-            //Connection response to Terminal
-            //
+            bBotWidgetsList.Add(voiceViewModel.VoiceModel);
+            bBotWidgetsList.Add(botTerminalViewModel.BotTerminalModel);
+            bBotWidgetsList.Add(legsViewModel.LegsModel);
+            bBotWidgetsList.Add(quickButtonsViewModel.QuickButtonsModel);
+            bBotWidgetsList.Add(eyeViewModel.EyeModel);
 
         }
-
-        
 
         #region Properties (to be bound to)
 
@@ -94,6 +86,12 @@ namespace BBot
         {
             get { return quickButtonsViewModel; }
             set { quickButtonsViewModel = value; }
+        }
+
+        public EyeViewModel EyeViewModel
+        {
+            get { return eyeViewModel; }
+            set { eyeViewModel = value; }
         }
 
         #endregion

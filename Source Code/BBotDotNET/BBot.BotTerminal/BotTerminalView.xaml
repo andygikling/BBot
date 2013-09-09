@@ -17,7 +17,7 @@
 
     <GroupBox Header="Terminal" Style="{StaticResource CleanWPFGroupBoxStyle}">
         <Grid x:Name="grid_MainGrid">
-            <TabControl x:Name="tab_MainTab" Margin="2">
+            <TabControl x:Name="tab_MainTab" BorderBrush="{StaticResource HighlightGrayBrush}">
                 <TabItem x:Name="tabItem_Terminal" Header="Messages" Margin="-3,-3,0,-1" FontWeight="Bold">
                     <TabItem.Resources>
                         <Utils:ListToStringConverter x:Key="ListToStringConverter"/>
@@ -37,7 +37,7 @@
                                     Foreground="{StaticResource LightBlueBrush}" 
                                     Background="{StaticResource MidGrayBrush}" 
                                     BorderBrush="{StaticResource HighlightGrayBrush}"
-                                    Text="{Binding Path=BotTerminalModel.CurrentCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    Text="{Binding Path=BotTerminalModel.CurrentCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11">
                             <TextBox.InputBindings>
                                 <KeyBinding Gesture="Enter" Command="{Binding SendTerminalCommandNow}"/>
                                 <KeyBinding Key="Up" Command="{Binding HistoryUpArrowCommand}"/>

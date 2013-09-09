@@ -69,9 +69,11 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EyeModel.cs" />
     <Compile Include="EyeView.xaml.cs">
       <DependentUpon>EyeView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EyeViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

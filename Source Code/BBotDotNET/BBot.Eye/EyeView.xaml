@@ -17,11 +17,28 @@
 
     <GroupBox Header="Eye Ball" Style="{StaticResource CleanWPFGroupBoxStyle}">
 
-        <TabControl x:Name="tab_MainTab" Background="#E3DFBA">
+        <TabControl x:Name="tab_MainTab" Background="#E3DFBA" BorderBrush="{StaticResource HighlightGrayBrush}">
             <TabItem x:Name="tabItem_VideoView" Header="View" Margin="-3,-3,0,-1" FontWeight="Bold">
                 <Grid Background="{StaticResource PurpleGrayBrush}" Margin="-4,-4,-4,-4">
-                    <cam:Webcam Name="WebCamCtrl" Margin="0,0,0,0"></cam:Webcam>
-                </Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="10*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="10*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Slider Grid.Column="1" Grid.ColumnSpan="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,0,5,0" 
+                            Maximum="200" TickFrequency="10" TickPlacement="TopLeft"
+                            Value="{Binding Path=EyeModel.PanPosition, Mode=TwoWay}" SmallChange="10" LargeChange="20" IsSnapToTickEnabled="True" IsMoveToPointEnabled="True"/>
+                    <Slider Grid.Column="0" Grid.ColumnSpan="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" 
+                            Maximum="200" TickFrequency="10" TickPlacement="TopLeft" Orientation="Vertical"
+                            Value="{Binding Path=EyeModel.TiltPosition, Mode=TwoWay}" LargeChange="20" SmallChange="10" IsSnapToTickEnabled="True" IsMoveToPointEnabled="True"/>
+                    
+                    <cam:Webcam Name="WebCamCtrl" Margin="0,0,0,0" Grid.Row="1" Grid.Column="1"></cam:Webcam>
+
+                </Grid>                
             </TabItem>
             <TabItem x:Name="tabItem_Settings" Header="Settings" Margin="-3,-3,0,-1" FontWeight="Bold">
                 <Grid Background="{StaticResource LightGrayBrush}" Margin="-4,-4,-4,-4">
@@ -38,12 +55,14 @@
                         <ColumnDefinition Width="155*"/>
                         <ColumnDefinition Width="179*"/>
                     </Grid.ColumnDefinitions>
-                    <ComboBox Height="22" HorizontalAlignment="Left" Margin="100,0,0,0" Name="VidDvcsComboBox" VerticalAlignment="Center" Width="210" Grid.ColumnSpan="2" />
-                    <ComboBox Height="23" HorizontalAlignment="Left" Margin="100,0,0,0" Name="AudDvcsComboBox" VerticalAlignment="Center" Width="209" Grid.ColumnSpan="2" Grid.Row="1" />
+                    <ComboBox Height="23" HorizontalAlignment="Left" Margin="100,0,0,0" Name="VidDvcsComboBox" VerticalAlignment="Center" Width="210" Grid.ColumnSpan="2" />
+                    <ComboBox Height="23" HorizontalAlignment="Left" Margin="100,0,0,0" Name="AudDvcsComboBox" VerticalAlignment="Center" Width="210" Grid.ColumnSpan="2" Grid.Row="1" />
                     <Button Content="Start Recording" Height="26" HorizontalAlignment="Center" Margin="0" Name="RecordButton" VerticalAlignment="Center" Width="120" Click="RecordButton_Click" Grid.Row="3" />
                     <Button Content="Stop Recording" Height="26" HorizontalAlignment="Center" Margin="0" Name="StopRecordButton" VerticalAlignment="Center" Width="120" Click="StopRecordButton_Click" Grid.Column="1" Grid.Row="3" />
-                    <TextBlock Height="22" HorizontalAlignment="Left" Margin="20,5,0,0" Name="TextBlock1" Text="Video Device" VerticalAlignment="Center" Width="78" TextAlignment="Left" FlowDirection="LeftToRight" />
-                    <TextBlock FlowDirection="LeftToRight" Height="22" HorizontalAlignment="Left" Margin="20,5,0,0" Name="TextBlock2" Text="Audio Device" TextAlignment="Left" VerticalAlignment="Center" Width="78" Grid.Row="1" />
+                    <TextBlock Height="22" HorizontalAlignment="Left" Margin="20,5,0,0" Name="TextBlock1" Text="Video Device" VerticalAlignment="Center" Width="78" TextAlignment="Left" FlowDirection="LeftToRight" 
+                               Foreground="{StaticResource LightBlueBrush}"/>
+                    <TextBlock FlowDirection="LeftToRight" Height="22" HorizontalAlignment="Left" Margin="20,5,0,0" Name="TextBlock2" Text="Audio Device" TextAlignment="Left" VerticalAlignment="Center" Width="78" Grid.Row="1" 
+                               Foreground="{StaticResource LightBlueBrush}"/>
                     <Button Content="End Capture" Height="26" HorizontalAlignment="Center" Margin="0" Name="EndButton" VerticalAlignment="Center" Width="120" Click="EndButton_Click" Grid.Column="1" Grid.Row="2" />
                     <Button Content="Start Capture" Height="26" HorizontalAlignment="Center" Margin="0" Name="StartButton" VerticalAlignment="Center" Width="120" Click="StartButton_Click" Grid.Row="2" />
                     <Button Content="Take Snapshot" Height="26" HorizontalAlignment="Center" Margin="0" Name="SnapshotButton" VerticalAlignment="Center" Width="120" Click="SnapshotButton_Click" Grid.Row="4" />

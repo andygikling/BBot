@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ToggleSwitch="clr-namespace:ToggleSwitch;assembly=ToggleSwitch"
-             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="150" Width="Auto" Height="150">
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="150" Width="Auto" Height="Auto">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -14,76 +14,36 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <!--
-    <UserControl.Resources>
-        <ResourceDictionary x:Key="ColorsDic">
-            <ResourceDictionary.MergedDictionaries x:Key="MDic">
-                <ResourceDictionary Source="/BBot.Utilities;component/Themes/BBotTheme.xaml" x:Name="ThemeColors"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
 
-     
-        <LinearGradientBrush x:Key="CheckedStateBrush" EndPoint="0,1" StartPoint="0,0">
-            <GradientStop Color="#1E41A5" Offset="0" />
-            <GradientStop Color="#2F6AEA" Offset="0.5" />
-            <GradientStop Color="#6298FE" Offset="1" />
-        </LinearGradientBrush>
-        <LinearGradientBrush x:Key="UncheckedStateBrush" EndPoint="0,1" StartPoint="0,0">
-            <GradientStop Color="#FF81230E" />
-            <GradientStop Color="#FFF15910" Offset="0.365" />
-            <GradientStop Color="#FFF5A782" Offset="1" />
-        </LinearGradientBrush>
-        <LinearGradientBrush x:Key="UncheckedStateBrushBW" EndPoint="0,1" StartPoint="0,0">
-            <GradientStop Color="#FF454343" Offset="0.004" />
-            <GradientStop Color="#FFB8B8B8" Offset="0.364" />
-            <GradientStop Color="#F1F1F1" Offset="1" />
-        </LinearGradientBrush>
-       
-        
-    </UserControl.Resources>
- -->
     <GroupBox Header="Connection" Style="{StaticResource CleanWPFGroupBoxStyle}">
         
         <Grid x:Name="grid_MainGrid">
 
-            <TabControl x:Name="tab_MainTab" BorderBrush="Black" BorderThickness="2">
+            <TabControl x:Name="tab_MainTab" BorderBrush="{StaticResource HighlightGrayBrush}">
                 <TabItem x:Name="tabItem_ConnectionCOM" Header="COM Port" Margin="-3,-3,0,-1" FontWeight="Bold" BorderBrush="#1A1F1E">
                     <Grid x:Name="grid_ConnectionCOM" Background="{StaticResource PurpleGrayBrush}" Margin="-4,-4,-4,-4">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="40"/>
-                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="60"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="93"/>
-                            <ColumnDefinition Width="82"/>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="160"/>
-                            <ColumnDefinition Width="161"/>
+                            <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="txt_COMPortNum" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Bottom" Height="22" Margin="1,0,0,10" BorderThickness="2" BorderBrush="#1A1F1E" TextAlignment="Center" Background="#FFF0F0F0"
-                                 Foreground="{StaticResource LightBlueBrush}">
+                        <TextBox x:Name="txt_COMPortNum" TextWrapping="Wrap" Grid.Column="1" Height="22" Margin="1,10,0,9" BorderThickness="2" BorderBrush="#1A1F1E" TextAlignment="Center" Background="#FFF0F0F0"
+                                 Foreground="{StaticResource LightBlueBrush}" VerticalAlignment="Center">
                             <TextBox.Text>
                                 <Binding Path="ComPortNumber" Mode="TwoWay"/>
                             </TextBox.Text>
                         </TextBox>
-                        <Label x:Name="lbl_COMPortNum" Content="COM Port:" Height="26" Width="78" Margin="0,0,0,10" FontSize="14" VerticalAlignment="Bottom" HorizontalAlignment="Right" 
+                        <Label x:Name="lbl_COMPortNum" Content="COM Port:" Height="26" Width="78" Margin="0,8,0,7" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Right" 
                                Foreground="{StaticResource LightBlueBrush}"/>
-                        <Label x:Name="lbl_COMPortStatus" Content="COM Port Open" Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Width="100" Height="25" Grid.ColumnSpan="2"
-                               Foreground="{StaticResource LightBlueBrush}" Grid.RowSpan="2" Margin="0,0,0,5"/>
-
-
-                        <Button Grid.Row="0" Content="Open" Grid.Column="2" Click="ButtonOpen_Click" Margin="20,10,10,10" Grid.RowSpan="2"
-                                Background="{StaticResource ButtonFaceGrayBrush}">
-                            <Button.Effect>
-                                <DropShadowEffect Direction="310" Opacity="0.8"/>
-                            </Button.Effect>
-                        </Button>
-                        <Button Grid.Row="0" Content="Close" Grid.Column="3" Margin="10,10,20,10" UseLayoutRounding="False" Click="ButtonClose_Click" Grid.RowSpan="2"
-                                Background="{StaticResource ButtonFaceGrayBrush}">
-                            <Button.Effect>
-                                <DropShadowEffect Direction="310" Opacity="0.8"/>
-                            </Button.Effect>
-                        </Button>
-                        <!--<ToggleSwitch:HorizontalToggleSwitch Grid.Column="3" Grid.Row="0"></ToggleSwitch:HorizontalToggleSwitch>-->
+                        <ToggleSwitch:HorizontalToggleSwitch Grid.Column="2" Grid.Row="0"
+                                UncheckedContent="Disconnected" CheckedContent="Connected" CheckedBackground="{StaticResource LightBlueBrush}" 
+                                HorizontalAlignment="Left" VerticalAlignment="Center" 
+                                Width="150" Height="25" Margin="10,8,0,8"
+                                IsChecked="{Binding Path=ConnectionCOMModel.ComPortConnected, Mode=TwoWay}"/>
                     </Grid>
                </TabItem>
             
@@ -119,11 +79,16 @@
                   
                 <TabItem x:Name="tabItem_Connection" Header="TCP/IP" Margin="-3,-3,0,-1" FontWeight="Bold" BorderBrush="Black">
                     <Grid x:Name="grid_ConnectionIP" Background="{StaticResource PurpleGrayBrush}" Margin="-4,-4,-4,-4">
-                 
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="60"/>
+                        </Grid.RowDefinitions>
                     </Grid>
                 </TabItem>
                 <TabItem x:Name="tabItem_Settings" Header="Settings" Margin="-3,-3,0,-1" FontWeight="Bold" BorderBrush="Black">
                     <Grid Background="{StaticResource PurpleGrayBrush}" Margin="-4,-4,-4,-4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="60"/>
+                        </Grid.RowDefinitions>
                     </Grid>
                 </TabItem>
             </TabControl>
