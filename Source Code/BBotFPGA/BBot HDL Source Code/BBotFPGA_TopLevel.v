@@ -115,8 +115,10 @@ module BBotFPGA_TopLevel(
 	
 	wire SPI_Sck, SPI_BiMo, SPI_BoMi, SPI_Ss;
 	wire SPI_di_req_o, SPI_wren_i, SPI_wr_ack_o, SPI_do_valid_o;
-	wire[31:0]SPI_di_i, SPI_do_o;
-	reg [31:0]SPI_di_i_reg, SPI_do_o_reg;
+	wire[127:0]SPI_di_i, SPI_do_o;
+	reg [127:0]SPI_di_i_reg, SPI_do_o_reg;
+	reg SPI_wren_i_reg;
+	reg [31:0]SPI_ChipSelectIntervalCounter_reg;
 	
 	wire RC_MotorR_Aileron_In, RC_MotorL_Elevator_In, RC_CamPan_Rudder_In, RC_CamTilt_Throttle_In;
 	wire MotorR_PPM_Out, MotorL_PPM_Out, CamPan_PPM_Out, CamTilt_PPM_Out;
@@ -164,9 +166,9 @@ module BBotFPGA_TopLevel(
 			CameraPanPosition_50MHzPulses <= RC_ZeroPoint_Pulses;
 			CameraTiltPosition_50MHzPulses <= RC_ZeroPoint_Pulses;
 			
-			SPI_do_o_reg[31:0] <= 32'd0;
-			//Data sent back to the beaglebone
-			SPI_di_i_reg[31:0] <= 32'hDEADBEEF;
+			//SPI resets
+			SPI_wren_i_reg <= 1'h0;
+			SPI_ChipSelectIntervalCounter_reg <= 32'd0;
 			
 			//HBeat reaches 0 in 500ms when clock is running @ 50MHz
 			HBeatCounter <= 32'd25000000;
@@ -181,7 +183,6 @@ module BBotFPGA_TopLevel(
 			//Mode 0
 			if (DipSW3 == 1'h0 && DipSW2 == 1'h0 && DipSW1 == 1'h0 && DipSW0 == 1'h0)
 			begin
-				CurrentEncoderCount_Left_reg[31:0] <= CurrentEncoderCount_Left[31:0];
 				LED_reg[4:0] <= CurrentEncoderCount_Left_reg[11:7];
 				LED_reg[5] <= Encoder_L_A_In;
 				LED_reg[6] <= Encoder_L_B_In;
@@ -190,7 +191,6 @@ module BBotFPGA_TopLevel(
 			//Mode 1
 			else if (DipSW3 == 1'h0 && DipSW2 == 1'h0 && DipSW1 == 1'h0 && DipSW0 == 1'h1)
 			begin
-				CurrentEncoderCount_Right_reg[31:0] <= CurrentEncoderCount_Right[31:0];
 				LED_reg[4:0] <= CurrentEncoderCount_Right_reg[11:7];
 				LED_reg[5] <= Encoder_R_A_In;
 				LED_reg[6] <= Encoder_R_B_In;
@@ -266,7 +266,14 @@ module BBotFPGA_TopLevel(
 			//temp2 <= 1'b0;
 			temp3 <= 1'b0;
 			
-			
+			if(~SYS_SPI_SS)
+			begin
+				SPI_wren_i_reg <= 1'h1;
+			end
+			else
+			begin
+				SPI_wren_i_reg <= 1'h0;
+			end
 			
 			if(SPI_do_valid_o)
 			begin
@@ -290,13 +297,25 @@ module BBotFPGA_TopLevel(
 				//byte of our DataBlock_TX struct in the C++ code correlates with 
 				//SPI_do_o_reg[7:0]... not totally required but it makes it easier to
 				//work with when routing the signals to FPGA peripherals	
-				SPI_do_o_reg[7:0] <= SPI_do_o[31:24];
-				SPI_do_o_reg[15:8] <= SPI_do_o[23:16];
-				SPI_do_o_reg[23:16] <= SPI_do_o[15:8];
-				SPI_do_o_reg[31:24] <= SPI_do_o[7:0];
+				SPI_do_o_reg[7:0] 		<= SPI_do_o[127:120];
+				SPI_do_o_reg[15:8] 		<= SPI_do_o[119:112];
+				SPI_do_o_reg[23:16] 		<= SPI_do_o[111:104];
+				SPI_do_o_reg[31:24] 		<= SPI_do_o[103:96];
+				SPI_do_o_reg[39:32]		<= SPI_do_o[95:88];
+				SPI_do_o_reg[47:40]		<= SPI_do_o[87:80];
+				SPI_do_o_reg[55:48]		<= SPI_do_o[79:72];
+				SPI_do_o_reg[63:56]		<= SPI_do_o[71:64];
+				SPI_do_o_reg[71:64]		<= SPI_do_o[63:56];
+				SPI_do_o_reg[79:72]		<= SPI_do_o[55:48];
+				SPI_do_o_reg[87:80]		<= SPI_do_o[47:40];
+				SPI_do_o_reg[95:88]		<= SPI_do_o[39:32];
+				SPI_do_o_reg[103:96]		<= SPI_do_o[31:24];
+				SPI_do_o_reg[111:104]	<= SPI_do_o[23:16];
+				SPI_do_o_reg[119:112]	<= SPI_do_o[15:8];
+				SPI_do_o_reg[127:120]	<= SPI_do_o[7:0];
 				
-				LeftMotorSpeed_Percent[7:0] <= 8'd50;
-				RightMotorSpeed_Percent[7:0] <= SPI_do_o_reg[23:16];
+				RightMotorSpeed_Percent[7:0] <= SPI_do_o_reg[15:8];
+				LeftMotorSpeed_Percent[7:0] <= SPI_do_o_reg[23:16];
 				
 			end
 		
@@ -306,13 +325,35 @@ module BBotFPGA_TopLevel(
 			CameraPanPosition_50MHzPulses <= RC_LowLimit_Pulses + (CameraPanPosition_Percent * RC_RangeMultiplier);
 			CameraTiltPosition_50MHzPulses <= RC_LowLimit_Pulses + (CameraTiltPosition_Percent * RC_RangeMultiplier);
 			
+			//Grab the current count
+			CurrentEncoderCount_Left_reg[31:0] <= CurrentEncoderCount_Left[31:0];
+			CurrentEncoderCount_Right_reg[31:0] <= CurrentEncoderCount_Right[31:0];
+			
+			//Increment a counter to keep track of how long it's been since a slave slect latch
+			//This number is then used by the embedded software to figure out wheel speeds
+			if(SYS_SPI_SS == 1'h1)
+			begin
+				SPI_ChipSelectIntervalCounter_reg <= SPI_ChipSelectIntervalCounter_reg + 1;
+			end
+			else
+			begin
+				SPI_ChipSelectIntervalCounter_reg <= 32'd0;
+			end
+			
+			
 		end
-		
-		
 		
 	end
 	
-
+	//Here we latch the data being sent back to the BeagleBone
+	always @(negedge SYS_SPI_SS)
+	begin
+			SPI_di_i_reg[31:0] <= SPI_ChipSelectIntervalCounter_reg[31:0];
+			SPI_di_i_reg[63:32] <= CurrentEncoderCount_Left_reg[31:0];				
+			SPI_di_i_reg[95:64] <= CurrentEncoderCount_Right_reg[31:0];
+			SPI_di_i_reg[127:96] <= 32'hBA5EBA11;
+	end
+	
 
 //-----------------------------------------------------------------------------------------
 //	Assignments
@@ -351,7 +392,24 @@ module BBotFPGA_TopLevel(
 	assign RC_MotorSignalSourceSelect = SPI_do_o_reg[0];
 	assign RC_CameraSignalSourceSelect = SPI_do_o_reg[1];
 	//Data to be sent back to the BeagleBone Black via our spi_slave block
-	assign SPI_di_i[31:0] = SPI_di_i_reg[31:0];
+	//also needs to be byte swapped like the data on SPI_do_o
+	assign SPI_di_i[7:0] 		= SPI_di_i_reg[127:120];
+	assign SPI_di_i[15:8] 		= SPI_di_i_reg[119:112];
+	assign SPI_di_i[23:16] 		= SPI_di_i_reg[111:104];
+	assign SPI_di_i[31:24] 		= SPI_di_i_reg[103:96];
+	assign SPI_di_i[39:32]		= SPI_di_i_reg[95:88];
+	assign SPI_di_i[47:40]		= SPI_di_i_reg[87:80];
+	assign SPI_di_i[55:48]		= SPI_di_i_reg[79:72];
+	assign SPI_di_i[63:56]		= SPI_di_i_reg[71:64];
+	assign SPI_di_i[71:64]		= SPI_di_i_reg[63:56];
+	assign SPI_di_i[79:72]		= SPI_di_i_reg[55:48];
+	assign SPI_di_i[87:80]		= SPI_di_i_reg[47:40];
+	assign SPI_di_i[95:88]		= SPI_di_i_reg[39:32];
+	assign SPI_di_i[103:96]		= SPI_di_i_reg[31:24];
+	assign SPI_di_i[111:104]	= SPI_di_i_reg[23:16];
+	assign SPI_di_i[119:112]	= SPI_di_i_reg[15:8];
+	assign SPI_di_i[127:120]	= SPI_di_i_reg[7:0];
+	assign SPI_wren_i 			= SPI_wren_i_reg;
 	
 	//RC Signals
 	assign RC_CamPan_Rudder_In = PMOD3_8;
@@ -369,12 +427,12 @@ module BBotFPGA_TopLevel(
 	assign MotorR_PPM_Out = RC_MotorSignalSourceSelect ? RC_MotorPulseGen_Right : RC_MotorR_Aileron_In;
 	assign CamPan_PPM_Out = RC_CameraSignalSourceSelect ? RC_CamPanPulseGen : RC_CamPan_Rudder_In;
 	assign CamTilt_PPM_Out = RC_CameraSignalSourceSelect ? RC_CamTiltPulseGen : RC_CamTilt_Throttle_In;
-		
+
 	//Encoder inputs
-	assign Encoder_L_A_In = PMOD3_9;
-	assign Encoder_L_B_In = PMOD3_10;
-	assign Encoder_R_A_In = GPMC_AD14;
-	assign Encoder_R_B_In = GPMC_AD15;
+	assign Encoder_L_A_In = GPMC_AD15;
+	assign Encoder_L_B_In = GPMC_AD14;
+	assign Encoder_R_A_In = PMOD3_9; 
+	assign Encoder_R_B_In = PMOD3_10; 
 	
 	//LEDs
 	assign LEDOutput0 = LED_reg[0];

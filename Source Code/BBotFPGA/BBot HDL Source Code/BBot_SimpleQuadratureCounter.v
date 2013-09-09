@@ -39,7 +39,7 @@ always @(posedge clock) begin
 	if (reset_l == 1'b0)
 	begin
 		
-		Count[31:0] <= 32'd0;
+		Count[31:0] <= 32'h80000000;
 	
 	end
 	else

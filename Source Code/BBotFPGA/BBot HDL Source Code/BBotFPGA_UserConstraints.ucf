@@ -48,6 +48,7 @@ NET "SYS_SPI_MISO"   LOC = P27;  	# IO_L37P_3		SPI_BiMo		BeagleBone Maser In (Ma
 NET "SYS_SPI_MOSI"   LOC = P29;  	# IO_L36N_3		SPI_BoMi		BeagleBone Maser Out	(Mark1 Slave In)
 NET "SYS_SPI_SS"     LOC = P30;  	# IO_L36P_3		SPI_Ss		Slave Select
 NET "SYS_SPI_SCK" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "SYS_SPI_SS" CLOCK_DEDICATED_ROUTE = FALSE;
 
 #RC contoller signals - to motors and camera mount
 NET "PMOD3_8" 		LOC = P14;			# IO_L44N_GCLK20_3				RC_CamPan_Rudder_In 		(In)			RC Rudd - Cam Pan
