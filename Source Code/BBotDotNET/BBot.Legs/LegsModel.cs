@@ -125,6 +125,7 @@ namespace BBot
             set 
             { 
                 controlSignalSourceSelect = value;
+                Throttle_Stop();
                 SendControlFormatted(value);
             }
         }
@@ -209,11 +210,11 @@ namespace BBot
             double trim = Math.Abs((this.ThrottleLeft - this.ThrottleRight)) / 2;
             if (this.ThrottleLeft >= this.throttleRight)
             {
-                motorMixedLeft = (int)trim + 100;
+                motorMixedLeft = 100 - (int)trim;
             }
             else
             {
-                motorMixedLeft = (int)trim - 100;
+                motorMixedLeft = (int)trim + 100;
             }
         }
         
@@ -233,7 +234,7 @@ namespace BBot
         void SendControlFormatted(bool Source)
         {
             string msg = Source ? op_Control_Select_Software : op_Control_Select_DX6i;
-            msg += " ";
+            msg += "  ";
             msg += op_Termination;
             SendMessage(msg);
         }

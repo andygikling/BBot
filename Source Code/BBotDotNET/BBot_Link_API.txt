@@ -47,5 +47,8 @@ Custom (Buttons mostly)
 ---------------------------------------------------------------------------------------
 Command Code C
 
-00= Set Debug Overlay on Video Screen
-01= Clear Debug Overlay on Video Screen 
+00= Clear Debug Overlay on Video Screen 
+01= Set ListenThread Debug Overlay on Video Screen
+02= Set VoiceThread Debug Overlay on Video Screen
+03= Set LegsThread Debug Overlay on Video Screen
+04= Set Mark1FPGAThread Debug Overlay on Video Screen

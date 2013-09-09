@@ -63,19 +63,19 @@
                             <RowDefinition Height="17*"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="107*"/>
-                            <ColumnDefinition Width="140*"/>
-                            <ColumnDefinition Width="150*"/>
-                            <ColumnDefinition Width="95*"/>
+                            <ColumnDefinition Width="109*"/>
+                            <ColumnDefinition Width="181*"/>
+                            <ColumnDefinition Width="113*"/>
+                            <ColumnDefinition Width="97*"/>
                         </Grid.ColumnDefinitions>
 
 
-                        <Label Content="{Binding Path=VoiceModel.TalkSpeed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="0" Width="35" Background="{StaticResource DarkGrayBrush}" Foreground="{StaticResource LightBlueBrush}" Margin="70,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="25"/>
-                        <Slider x:Name="slide_Voice_Speed" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0" Minimum="75" Maximum="600" Value="{Binding Path=VoiceModel.TalkSpeed, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" Height="20" Width="125"/>
-                        <Button x:Name="btn_Voice_SendSettings" Content="Send Settings" Grid.Row="0" Grid.Column="2" Click="btn_Voice_SendSettings_Click" Margin="5,0,0,0" Height="25" HorizontalAlignment="Left" VerticalAlignment="Center" Width="90"/>
+                        <Label Content="{Binding Path=VoiceModel.TalkSpeed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="0" Width="35" Background="{StaticResource DarkGrayBrush}" Foreground="{StaticResource LightBlueBrush}" Margin="70,8,0,8" HorizontalAlignment="Left" VerticalAlignment="Center" Height="24"/>
+                        <Slider x:Name="slide_Voice_Speed" Grid.Row="0" Grid.Column="1" Margin="5,10,0,10" Minimum="75" Maximum="600" Value="{Binding Path=VoiceModel.TalkSpeed, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" Height="20" Width="166"/>
+                        <Button x:Name="btn_Voice_SendSettings" Content="Send Settings" Grid.Row="0" Grid.Column="2" Click="btn_Voice_SendSettings_Click" Margin="5,8,0,8" Height="24" HorizontalAlignment="Left" VerticalAlignment="Center" Width="90"/>
 
-                        <Button x:Name="btn_Voice_Stop" Content="Stop Talking" Grid.Row="1" Click="btn_Voice_Stop_Click" Margin="5,0,0,0" Height="25" Width="90" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2"/>
-                        <ComboBox x:Name="btn_Voice_VoiceType" Grid.Column="1" Grid.Row="1" SelectedIndex="{Binding Path=VoiceModel.VoiceNumber, Mode=TwoWay}" Margin="5,0,0,0" Width="125" Height="25" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Button x:Name="btn_Voice_Stop" Content="Stop Talking" Grid.Row="1" Click="btn_Voice_Stop_Click" Margin="5,8,0,8" Height="24" Width="90" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2"/>
+                        <ComboBox x:Name="btn_Voice_VoiceType" Grid.Column="1" Grid.Row="1" SelectedIndex="{Binding Path=VoiceModel.VoiceNumber, Mode=TwoWay}" Margin="5,8,0,8" Width="166" Height="24" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <ComboBoxItem Name="cbi1">Male Higher Voice</ComboBoxItem>
                             <ComboBoxItem Name="cbi2">Male Lower Voice</ComboBoxItem>
                             <ComboBoxItem Name="cbi3">Woman</ComboBoxItem>
@@ -85,8 +85,8 @@
                             <ComboBoxItem Name="cbi7">Robot</ComboBoxItem>
                             <ComboBoxItem Name="cbi8">Girl</ComboBoxItem>
                         </ComboBox>
-                        <Label Content="Voice Number:" HorizontalAlignment="Right" Margin="0" Grid.Row="1" VerticalAlignment="Center" Height="25" Width="94" Foreground="{StaticResource LightBlueBrush}"/>
-                        <Label Content="Talk Speed:" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center" Height="25" Width="74" Foreground="{StaticResource LightBlueBrush}"/>
+                        <Label Content="Voice Type:" HorizontalAlignment="Right" Margin="0,8" Grid.Row="1" VerticalAlignment="Center" Height="24" Width="75" Foreground="{StaticResource LightBlueBrush}"/>
+                        <Label Content="Talk Speed:" HorizontalAlignment="Left" Margin="0,8" VerticalAlignment="Center" Height="24" Width="75" Foreground="{StaticResource LightBlueBrush}"/>
                     </Grid>
                 </TabItem>
             </TabControl>

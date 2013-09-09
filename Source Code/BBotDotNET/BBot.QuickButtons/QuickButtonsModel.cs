@@ -11,9 +11,14 @@ namespace BBot
     {
         IRobotConnection connection;
 
-        private const string op_SetDebugOverlay = "C00";
-        private const string op_ClearDebugOverlay = "C01";
+        private const string op_ClearDebugOverlay = "C00";
+        private const string op_SetDebugOverlay_ListenThread = "C01";
+        private const string op_SetDebugOverlay_VoiceThread = "C02";
+        private const string op_SetDebugOverlay_LegsThread = "C03";
+        private const string op_SetDebugOverlay_Mark1FPGAThread = "C04";
         private const string op_Termination = "\r";
+
+        private int debugOverlayNumber = 0;
 
 
         public QuickButtonsModel(IRobotConnection Connection)
@@ -22,7 +27,17 @@ namespace BBot
             RouteMessages(connection);
         }
 
-
+        public int DebugOverlayNumber
+        {
+            get
+            {
+                return debugOverlayNumber;
+            }
+            set
+            {
+                debugOverlayNumber = value;
+            }
+        }
 
 
         #region IRobotWidget Members
@@ -52,12 +67,27 @@ namespace BBot
 
         public void SetDebugOverlayOnScreen()
         {
-            SendMessage(op_SetDebugOverlay + " " + op_Termination);
+            switch (this.DebugOverlayNumber)
+            {
+                case 0 :
+                    SendMessage(op_SetDebugOverlay_ListenThread + "  " + op_Termination);
+                    break;
+                case 1:
+                    SendMessage(op_SetDebugOverlay_VoiceThread + "  " + op_Termination);
+                    break;
+                case 2:
+                    SendMessage(op_SetDebugOverlay_LegsThread + "  " + op_Termination);
+                    break;
+                case 3:
+                    SendMessage(op_SetDebugOverlay_Mark1FPGAThread + "  " + op_Termination);
+                    break;
+            }
+            
         }
 
         public void ClearDebugOverlayOnScreen()
         {
-            SendMessage(op_ClearDebugOverlay + " " + op_Termination);
+            SendMessage(op_ClearDebugOverlay + "  " + op_Termination);
         }
     }
 

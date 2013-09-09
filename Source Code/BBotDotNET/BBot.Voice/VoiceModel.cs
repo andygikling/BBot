@@ -28,6 +28,8 @@ namespace BBot
         {
             connection = Connection;
             RouteMessages(connection);
+
+            this.TalkSpeed = 150;
         }
 
         #region Properties
