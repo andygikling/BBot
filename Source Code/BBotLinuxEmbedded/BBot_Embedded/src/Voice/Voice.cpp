@@ -84,7 +84,6 @@ void Voice::Run()
 		//make another method that "querys" busy" from the main loop
 		//then when busy is false, that method returns, not 0 but the response message.
 
-
 		WriteToVoiceModule(MessageIn);
 		AcknowledgeMessage("VoiceThread : Acknowledge");
 

@@ -12,7 +12,9 @@ using namespace std;
 void* pstart_Mark1FPGA(void* ref);
 
 Mark1FPGA::Mark1FPGA(Mark1_DataBlock_TX &DataBlock_TX, Mark1_DataBlock_RX &DataBlock_RX) :
-		Mark1_DataBlock_TX_(DataBlock_TX), Mark1_DataBlock_RX_(DataBlock_RX)
+		Mark1_DataBlock_TX_(DataBlock_TX), Mark1_DataBlock_RX_(DataBlock_RX),
+		previousEncoderCount_Left_(0), previousEncoderCount_Right_(0),
+		legsEncoderConvert_cts_per_mm_(5.13306)
 {
 	sem_init(&sem, 0, 0);
 
@@ -49,6 +51,8 @@ void Mark1FPGA::Run()
 	void *Data_ptr;
 	Data_ptr = &Data;
 
+	MainLoopCount_ = 0;
+
 	while(1)
 	{
 
@@ -60,12 +64,46 @@ void Mark1FPGA::Run()
 		memcpy(Data_ptr, &Mark1_DataBlock_TX_, SPI_BLOCK_TRANSFER_NUM_BYTES);
 		spiWriteRead( (unsigned char*)Data_ptr, SPI_BLOCK_TRANSFER_NUM_BYTES);
 
-		//memcpy(&Mark1_DataBlock_RX_, Data_ptr, SPI_BLOCK_TRANSFER_NUM_BYTES);
-		//addToLog("Mark1FPGAThread", "Encoder Count Left Is" + , true);
+		//Get data block from FPGA
+		memcpy(&Mark1_DataBlock_RX_, Data_ptr, SPI_BLOCK_TRANSFER_NUM_BYTES);
 
-		//addToLog("Mark1FPGAThread", "End Writing Data Block", true);
+		u_int32_t SPI_Interval_ = Mark1_DataBlock_RX_.SPIExchangeInterval;
+		u_int32_t currentEncoderCount_Left_ = Mark1_DataBlock_RX_.EncoderLeft_Count;
+		u_int32_t currentEncoderCount_Right_ = Mark1_DataBlock_RX_.EncoderRight_Count;
 
 
+		//Every so often sample the wheel velocity
+		if(MainLoopCount_ == SPI_MAIN_LOOP_COUNT_TARGET)
+		{
+
+			std::string s1 = std::to_string(SPI_Interval_);
+			std::string s2 = std::to_string(currentEncoderCount_Left_);
+			std::string s3 = std::to_string(currentEncoderCount_Right_);
+
+			double distanceTraveled_Left_mm = 0;
+			double distanceTraveled_Right_mm = 0;
+			double velocity_Left, velocity_Right = 0;
+
+			//Calc average velocity over MainLoopCount_ == SPI_MAIN_LOOP_COUNT_TARGET time interval
+			if(previousEncoderCount_Left_ != 0)
+			{
+				distanceTraveled_Left_mm = (currentEncoderCount_Left_ - previousEncoderCount_Left_) / legsEncoderConvert_cts_per_mm_;
+				velocity_Left = distanceTraveled_Left_mm / (SPI_MAIN_LOOP_COUNT_TARGET / 100);
+			}
+
+			if(previousEncoderCount_Right_ != 0)
+			{
+				distanceTraveled_Right_mm = (currentEncoderCount_Right_ - previousEncoderCount_Right_) / legsEncoderConvert_cts_per_mm_;
+				velocity_Right = distanceTraveled_Right_mm / (SPI_MAIN_LOOP_COUNT_TARGET / 100);
+			}
+
+			previousEncoderCount_Left_ = currentEncoderCount_Left_;
+			previousEncoderCount_Right_ = currentEncoderCount_Right_;
+
+			MainLoopCount_ = 0;
+		}
+
+		MainLoopCount_++;
 	}
 }
 
@@ -221,7 +259,7 @@ int Mark1FPGA::CreateLogOutputFile()
 	std::string dateAndTime(dt);
 	dateAndTime.erase(dateAndTime.length()-1, 2);
 
-	std::string entry = "BBot Mark1FPGA Thread Log File Created!" + dateAndTime + "\r\n";
+	std::string entry = "BBot Mark1FPGA Thread Log File Created! " + dateAndTime + "\r\n";
 
 	debugFileStream.open(PATH_TO_MARK1FPGA_THREAD_DEBUG_FILE, std::ofstream::out);
 	debugFileStream << entry;

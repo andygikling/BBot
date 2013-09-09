@@ -39,21 +39,28 @@
 
 //Enable Trace statements
 //If trace is set to true this software will be verbose
-#define TRACE 1
+//#define DEBUG 0
 
 #define FALSE 0
 #define TRUE 1
 
+//Legs Drive Train Constants
+//1 encoder revolution is 2048 counts
+//wheel diameter is 5 inch (circumference is then Pi*127mm)
+//=5.13306 counts per millimeter
+#define LEGS_ENCODER_CONVERT_CTS_PER_MM 	5.13306
+
 //SPI Settings
 #define SPI_PATH_TO_SPI_DEVICE 				"/dev/spidev1.0"
-#define SPI_BLOCK_TRANSFER_NUM_BYTES 		4
+#define SPI_BLOCK_TRANSFER_NUM_BYTES 		16
 #define SPI_BITS_PER_WORD 					8
-#define SPI_BIT_RATE_HZ						4000000
-#define SPI_MARK1_DATABLOCK_UPDATE_RATE_US 	1000000
+#define SPI_BIT_RATE_HZ						6000000
+#define SPI_MARK1_DATABLOCK_UPDATE_RATE_US 	10000
+#define SPI_MAIN_LOOP_COUNT_TARGET			100
 //Struct that represents the 128bit data block that is passed to and from the
 //FPGA on an interval in the Mark1FPGA thread.
 struct Mark1_DataBlock_TX{
-	int8_t Control;		//where	//bool MotorSignalSourceSelect_ctrl;
+	u_int8_t Control;	//where	//bool MotorSignalSourceSelect_ctrl;
 								//bool CamerPanTiltSignalSourceSelect_ctrl;
 								//bool Ctrl2;
 								//bool Ctrl3;
@@ -61,19 +68,26 @@ struct Mark1_DataBlock_TX{
 								//bool Ctrl5;
 								//bool Ctrl6;
 								//bool Ctrl7;
-	int8_t Servo0_Position;		//Left Motor Speed
-	int8_t Servo1_Position;		//Right Motor Speed
-	int8_t Servo2_Position;		//Pan Position
-	int8_t Servo3_Position;		//Tilt Position
-
+	u_int8_t Servo0_Position;	//Left Motor Speed
+	u_int8_t Servo1_Position;	//Right Motor Speed
+	u_int8_t Servo2_Position;	//Pan Position
+	u_int8_t Servo3_Position;	//Tilt Position
+	u_int8_t GPIO_Out;			//GPIO
+	u_int8_t Empty8_1;
+	u_int8_t Empty8_2;
+	u_int8_t Empty32_1;
+	u_int8_t Empty32_2;
 
 };
 
 struct Mark1_DataBlock_RX{
-	int32_t SPIExchangeInterval;
-	int32_t EncoderLeft_Count;
-	int32_t EncoderRight_Count;
-	int8_t GPIO;
+	u_int32_t SPIExchangeInterval;
+	u_int32_t EncoderLeft_Count;
+	u_int32_t EncoderRight_Count;
+	u_int8_t GPIO_In;
+	u_int8_t Empty8_1;
+	u_int8_t Empty8_2;
+	u_int8_t Empty8_3;
 };
 
 
@@ -90,6 +104,12 @@ std::string const LEGS_FUNC_2("L02");
 
 std::string const CUSTOM_FUNC_0("C00");
 std::string const CUSTOM_FUNC_1("C01");
+std::string const CUSTOM_FUNC_2("C02");
+std::string const CUSTOM_FUNC_3("C03");
+std::string const CUSTOM_FUNC_4("C04");
+std::string const CUSTOM_FUNC_5("C05");
+std::string const CUSTOM_FUNC_6("C06");
+std::string const CUSTOM_FUNC_7("C07");
 
 
 #endif /* BBONECONSTANTS_H_ */

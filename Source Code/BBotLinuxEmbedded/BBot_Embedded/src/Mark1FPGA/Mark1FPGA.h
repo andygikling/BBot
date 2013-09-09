@@ -14,10 +14,12 @@
 #include <fcntl.h>
 #include <cstring>
 #include <stdlib.h>
+#include <stdio.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
+#include <cmath>
 
 #include <BBoneConstants.h>
 
@@ -35,6 +37,12 @@ private:
 	unsigned char bitsPerWord;
 	unsigned int speed;
 	int spifd;
+	int MainLoopCount_;
+
+	u_int32_t previousEncoderCount_Left_;
+	u_int32_t previousEncoderCount_Right_;
+
+	double legsEncoderConvert_cts_per_mm_;
 
 	int addToLog(std::string Source, std::string Content, bool AlsoPrintf);
 
@@ -44,6 +52,7 @@ private:
 
 	int spiOpen(std::string devspi);
 	int spiClose();
+
 
 public:
 	Mark1FPGA(Mark1_DataBlock_TX &DataBlock_TX, Mark1_DataBlock_RX &DataBlock_RX);

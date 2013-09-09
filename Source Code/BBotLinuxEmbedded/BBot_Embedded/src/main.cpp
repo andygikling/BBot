@@ -41,7 +41,7 @@ int initializeUART1();
 //the folder /home/root/images/ here we make a simlink to the BBot's
 //log file
 int createLogOutputFile();
-int setTextOutputFileSimlink();
+int setTextOutputFileSimlink(int target);
 int clearTextOutputFileSimlink();
 std::ofstream debugFileStream;
 int addToLog(std::string Source, std::string Content, bool AlsoPrintf);
@@ -78,12 +78,17 @@ Mark1FPGA *mark1FPGA_thread_ptr;
 
 int main(int argc,char** argv)
 {
+	cout << "BBot Main Program - Running" << endl;
+
 	//Here we sleep to allow other start up processes to finish
 	//Specifically, we want the RTC clock time to be set before
-	//this process starts
-	sleep(1);
-
-	cout << "BBot Main Program - Running" << endl;
+	//this process starts and creates the log files
+#ifndef DEBUG
+	cout << "BBot Embedded - Release Mode" << endl;
+	sleep(25);
+#else
+	cout << "BBot Embedded - Debug Mode" << endl;
+#endif
 
 	cout << "Print: ListenThread : Creating Output Debug File" << endl;
 	//Create text file for debug info (this will be displayed on the BBot screen)
@@ -124,8 +129,8 @@ int main(int argc,char** argv)
 	listenForCommands();
 
 	//Program is finished
-    /* restore the old port settings */
-    tcsetattr(fd1,TCSANOW,&oldtio1);
+	/* restore the old port settings */
+	tcsetattr(fd1,TCSANOW,&oldtio1);
 
 }
 
@@ -265,7 +270,7 @@ int createLogOutputFile()
 	std::string dateAndTime(dt);
 	dateAndTime.erase(dateAndTime.length()-1, 2);
 
-	std::string entry = "BBot Listen Thread Log File Created!" + dateAndTime + "\r\n";
+	std::string entry = "BBot Listen Thread Log File Created! " + dateAndTime + "\r\n";
 
 	debugFileStream.open(PATH_TO_LISTEN_THREAD_DEBUG_FILE, std::ofstream::out);
 	debugFileStream << entry;
@@ -273,20 +278,32 @@ int createLogOutputFile()
 	return 1;
 }
 
-int setTextOutputFileSimlink()
+int setTextOutputFileSimlink(int target)
 {
 	//The BBot Qt program is looking for a file called text.txt, here we make a simlink to
 	//the file this program writes to for debug info
-	int a = symlink(PATH_TO_LISTEN_THREAD_DEBUG_FILE, PATH_TO_DEBUG_FILE_SIMLINK);
-	if (a < 0)
+	int i;
+
+	switch (target)
 	{
-		addToLog("ListenThread", "Debug Log Simlink Created", true);
+		case 0 :
+			i = symlink(PATH_TO_LISTEN_THREAD_DEBUG_FILE, PATH_TO_DEBUG_FILE_SIMLINK);
+			AcknowledgeMessage("Set ListenThread Debug File Simlink");
+			break;
+		case 1 :
+			i = symlink(PATH_TO_VOICE_THREAD_DEBUG_FILE, PATH_TO_DEBUG_FILE_SIMLINK);
+			AcknowledgeMessage("Set VoiceThread Debug File Simlink");
+			break;
+		case 2 :
+			i = symlink(PATH_TO_LEGS_THREAD_DEBUG_FILE, PATH_TO_DEBUG_FILE_SIMLINK);
+			AcknowledgeMessage("Set LegsThread Debug File Simlink");
+			break;
+		case 3 :
+			i = symlink(PATH_TO_MARK1FPGA_THREAD_DEBUG_FILE, PATH_TO_DEBUG_FILE_SIMLINK);
+			AcknowledgeMessage("Set Mark1FPGAThread Debug File Simlink");
+			break;
 	}
-	else
-	{
-		addToLog("ListenThread", "Debug Log Simlink Creation Faild!", true);
-	}
-	return a;
+	return i;
 }
 
 int clearTextOutputFileSimlink()
@@ -326,10 +343,29 @@ int listenForCommands()
 int parseMessage(char *msg, int length)
 {
 	string s(msg);
+	string s1(msg);
 
-	addToLog("ListenThread", "Message In - Parsing Message", true);
+	//Check for a null message
+	//If it is null we need to ignore it - otherwise the logic
+	//bewlow will fall down.
+	if (msg[0] == 0)
+	{
+		AcknowledgeMessage("Message Acknowledge : Message Is Null : Message = " + s1);
+		return 0;
+	}
+
+	//Also make sure there is a termination char at the end so the logic below works...
+	if( &s1.at(s1.length()-1) != "\n" && &s1.at(s1.length()-1) != " " )
+	{
+		AcknowledgeMessage("Message Acknowledge : Message Has No Termination char : Message = " + s1);
+		return 0;
+	}
+
+	addToLog("ListenThread", "Message In - Parsing Message : " + s1.erase(s.length()-1, 2), true);
 
 	std::vector<std::string> splitMessage = StringSplit(s, " \r", false);
+
+	addToLog("ListenThread", "Message In - String Split Complete", true);
 
 	//All messages are set with \r at the end, here we remove it to make the
 	//log look correct...
@@ -436,18 +472,29 @@ int parseMessage(char *msg, int length)
 
 	else if(*splitMessage.begin() == CUSTOM_FUNC_0)
 	{
-		setTextOutputFileSimlink();
-		AcknowledgeMessage("Set Text Output File Simlink");
-	}
-	else if(*splitMessage.begin() == CUSTOM_FUNC_1)
-	{
 		clearTextOutputFileSimlink();
 		AcknowledgeMessage("Cleared Text Output File Simlink");
 	}
+	else if(*splitMessage.begin() == CUSTOM_FUNC_1)
+	{
+		setTextOutputFileSimlink(0);
+	}
+	else if(*splitMessage.begin() == CUSTOM_FUNC_2)
+	{
+		setTextOutputFileSimlink(1);
+	}
+	else if(*splitMessage.begin() == CUSTOM_FUNC_3)
+	{
+		setTextOutputFileSimlink(2);
+	}
+	else if(*splitMessage.begin() == CUSTOM_FUNC_4)
+	{
+		setTextOutputFileSimlink(3);
+	}
 
+	usleep(5000);
 	addToLog("ListenThread", "Message In - End Parse", true);
 
-	//sleep(1);
 	return 1;
 }
 
@@ -515,12 +562,15 @@ int addToLog(std::string Source, std::string Content, bool AlsoPrintf)
 
 int AcknowledgeMessage(std::string AckMessage)
 {
-	addToLog("ListenThread", "Sending Message Acknowledge", true);
+	std::string s = "Sending Message Acknowledge : " + AckMessage;
+	addToLog("ListenThread", s, true);
 
-	char *msg = new char[AckMessage.size()];
-	strcpy(msg, AckMessage.c_str());
+	//The following lines were causing a segmentation fault. Why?
+	//char *msg = new char[AckMessage.size()];
+	//strcpy(msg, AckMessage.c_str());
+	//strcpy(&bufResponse[0], &msg);
 
-	strcpy(&bufResponse[0], msg);
+	strcpy(&bufResponse[0], AckMessage.c_str());
 	strcat(bufResponse, "\r");
 	strcat(bufResponse, "\n");
 	write(fd1,&bufResponse,strlen(bufResponse));
