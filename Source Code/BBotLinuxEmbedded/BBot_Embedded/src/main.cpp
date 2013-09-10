@@ -45,6 +45,7 @@ int setTextOutputFileSimlink(int target);
 int clearTextOutputFileSimlink();
 std::ofstream debugFileStream;
 int addToLog(std::string Source, std::string Content, bool AlsoPrintf);
+int EnableLog_;
 
 //Here we spawn threads that run the main logic.
 //Main simply listens on the the XBee interface
@@ -92,6 +93,7 @@ int main(int argc,char** argv)
 
 	cout << "Print: ListenThread : Creating Output Debug File" << endl;
 	//Create text file for debug info (this will be displayed on the BBot screen)
+	EnableLog_ = true;
 	createLogOutputFile();
 
 	//Hold Mark1 FPGA in reset until done initializing everything
@@ -355,7 +357,7 @@ int parseMessage(char *msg, int length)
 	}
 
 	//Also make sure there is a termination char at the end so the logic below works...
-	if( &s1.at(s1.length()-1) != "\n" && &s1.at(s1.length()-1) != " " )
+	if( (msg[length-1] != 0xA) && (msg[length-1] != 0x20) )
 	{
 		AcknowledgeMessage("Message Acknowledge : Message Has No Termination char : Message = " + s1);
 		return 0;
@@ -491,6 +493,14 @@ int parseMessage(char *msg, int length)
 	{
 		setTextOutputFileSimlink(3);
 	}
+	else if(*splitMessage.begin() == CUSTOM_FUNC_5)
+	{
+		EnableLog_ = true;
+	}
+	else if(*splitMessage.begin() == CUSTOM_FUNC_6)
+	{
+		EnableLog_ = false;
+	}
 
 	usleep(5000);
 	addToLog("ListenThread", "Message In - End Parse", true);
@@ -543,17 +553,20 @@ int addToLog(std::string Source, std::string Content, bool AlsoPrintf)
 
 	//std::string entry = dateAndTime + " : " + Source + " : " + Content + "\r\n";
 
-	std::string entry = Source + " : " + Content + "\r\n";
-
-	debugFileStream << entry;
-	debugFileStream.flush();
-
-	if(AlsoPrintf)
+	if (EnableLog_)
 	{
-		std::string s = "Print: " + entry + "\r";
-		char *c = new char[s.size()];
-		strcpy(c, s.c_str());
-		printf(c);
+		std::string entry = Source + " : " + Content + "\r\n";
+
+		debugFileStream << entry;
+		debugFileStream.flush();
+
+		if(AlsoPrintf)
+		{
+			std::string s = "Print: " + entry + "\r";
+			char *c = new char[s.size()];
+			strcpy(c, s.c_str());
+			printf(c);
+		}
 	}
 
 	return 1;
