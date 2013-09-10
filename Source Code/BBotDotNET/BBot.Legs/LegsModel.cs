@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Threading;
 
 namespace BBot
 {
@@ -11,7 +12,14 @@ namespace BBot
         int throttleLeft, throttleRight, throttleLeftMixed, throttleRightMixed;
         int throttleInterval;
         bool controlSignalSourceSelect;
+        
+        //LeapMotion related vaiables
         bool leapMotionEnable;
+        Thread LeapListenThread;
+        const int X_TRAVEL = 200;
+        const int Y_TRAVEL = 250;
+        const int Z_TRAVEL = 300;
+
 
         BBotLeapMotionWrapper leapWrapper;
 
@@ -142,9 +150,39 @@ namespace BBot
             set
             {
                 leapMotionEnable = value;
-                leapWrapper = new BBotLeapMotionWrapper();
+                
+                if (LeapListenThread == null && value)
+                {
+                    SendMessage("C06 \r"); //Disable Logger
+                    
+                    leapWrapper = new BBotLeapMotionWrapper();
+                    LeapListenThread = new Thread(LeampMotionListener);
+                    LeapMotionThread_StopRead = false;
+                    LeapListenThread.Name = "LeapListenThread";
+                    LeapListenThread.Start();
+                }
+                else
+                {
+                    try
+                    {
+                        leapWrapper.StopRead = true;
+                        leapWrapper.ReadThreadDispose();
+                        LeapMotionThread_StopRead = true;
+                        LeapListenThread.Join();
+                        leapWrapper = null;
+                        LeapListenThread = null;
+
+                        SendMessage("C05 \r"); //Enable Logger
+                    }
+                    catch (Exception e)
+                    {
+                        System.Diagnostics.Trace.WriteLine("Leap Motion thread doesn't exist - can't Join()");
+                    }
+                }
             }
         }
+
+        public bool LeapMotionThread_StopRead { get; set; }
 
         #region IRobotWidget Members
 
@@ -263,6 +301,133 @@ namespace BBot
             }
         }
 
+        private void LeampMotionListener()
+        {
+            int loopCount = 0;
+            bool transmit = false;
+
+            while (!LeapMotionThread_StopRead)
+            {
+                
+                System.Threading.Thread.Sleep(200);
+
+                System.Diagnostics.Trace.WriteLine("BBotLeapRead - X=" + (leapWrapper.Hand_X_Position.ToString() +
+                                                    " Y=" + leapWrapper.Hand_Y_Position.ToString() +
+                                                    " Z=" + leapWrapper.Hand_Z_Position.ToString() +
+                                                    " Roll=" + leapWrapper.Hand_Roll.ToString() +
+                                                    " Pitch=" + leapWrapper.Hand_Pitch.ToString() +
+                                                    " Yaw=" + leapWrapper.Hand_Yaw.ToString() +
+                                                    " Present=" + leapWrapper.Hand_Y_Position.ToString()));
+
+                CalculateMotorPowersFromLeapData(leapWrapper.Hand_X_Position,
+                                                    leapWrapper.Hand_Y_Position,
+                                                    leapWrapper.Hand_Z_Position,
+                                                    leapWrapper.Hand_Roll,
+                                                    leapWrapper.Hand_Pitch,
+                                                    leapWrapper.Hand_Yaw,
+                                                    leapWrapper.Hand_Present,
+                                                    transmit);
+
+                if (loopCount == 2)
+                {
+                    transmit = true;
+                    loopCount = 0;
+                }
+                else
+                {
+                    transmit = false;
+                    loopCount++;
+                }
+                
+
+            }
+
+
+        }
+
+        private void CalculateMotorPowersFromLeapData(double X, double Y, double Z, double Roll, double Pitch, double Yaw, bool HandPresent, bool Trasmit)
+        {
+            double motorL, motorR;
+            double x, y, z, roll, pitch, yaw;
+
+            if (HandPresent)
+            {
+                //Leap coords is, +Y is up, +X is to the right and +Z is toward you
+                //We'll change it so the controls are only labeled XY and that represents Leap's XZ plane
+                x = X;
+                y = -Z;
+                z = Y;
+                roll = Roll;
+                pitch = Pitch;
+                yaw = Yaw;
+
+                //Get total forward backward throttle
+                motorL = ((y / Y_TRAVEL) * 100) + 100;
+                motorR = ((y / Y_TRAVEL) * 100) + 100;
+
+                //Trim by left right
+                if (motorL >= 100 && motorR >= 100)
+                {
+                    //going forward
+                    if (x >= 0)
+                    {
+                        //Need to turn right (left motor stays put and we subtract power from right motor
+                        motorR = motorR - (x / X_TRAVEL) * 100;
+                        //Pin travel for usability
+                        if (motorR < 100)
+                        {
+                            motorR = 100;
+                        }
+                    }
+                    else
+                    {
+                        //Need to turn left...
+                        motorL = motorL - -((x / X_TRAVEL) * 100);
+                        if (motorL < 100)
+                        {
+                            motorL = 100;
+                        }
+                    }
+                }
+                else
+                {
+                    //we're going backward
+                    if (x >= 0)
+                    {
+                        motorR = (x / X_TRAVEL) * 100 + motorR;
+                        if (motorR > 100)
+                        {
+                            motorR = 100;
+                        }
+                    }
+                    else
+                    {
+                        //Need to turn left...
+                        motorL = -((x / X_TRAVEL) * 100) + motorL;
+                        if (motorL > 100)
+                        {
+                            motorL = 100;
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                motorL = 100;
+                motorR = 100;
+            }
+
+            this.ThrottleLeft = (int)motorL;
+            this.ThrottleRight = (int)motorR;
+            if (Trasmit)
+            {
+                UpdateMixedLeftAndRightThrottle();
+                SendThrottleFormatted();
+            }
+        }
+
 
     }
+
 }

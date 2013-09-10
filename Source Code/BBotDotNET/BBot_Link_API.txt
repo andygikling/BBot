@@ -49,6 +49,8 @@ Command Code C
 02= Set VoiceThread Debug Overlay on Video Screen
 03= Set LegsThread Debug Overlay on Video Screen
 04= Set Mark1FPGAThread Debug Overlay on Video Screen
+05= Enable Logging (is defualt)
+06= Disable Logging (when running Leap Motion)
 
 
 Eye 

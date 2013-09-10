@@ -11,7 +11,7 @@
     xmlns:uc_QuickButtons="clr-namespace:BBot;assembly=BBot.QuickButtons"
     x:Class="BBot.BBotMainWindow"
 	x:Name="BotControlMainWindow"
-	Title="BeagleBone Bot Remote!"
+	Title="BBot Remote!"
 	Width="1000" Height="800" Background="#FF000000"
     DataContext="BBotFrontEndViewModel" Icon="BeagleBoneIcon.ico">
 

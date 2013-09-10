@@ -12,29 +12,129 @@ namespace BBot
     public class BBotLeapMotionWrapper
     {
 
+        Thread leapReadThread;
+        SampleListener listener;
+        Controller controller;
+
         public BBotLeapMotionWrapper()
         {
             // Create a sample listener and controller
-            SampleListener listener = new SampleListener();
-            Controller controller = new Controller();
+            listener = new SampleListener();
+            controller = new Controller();
 
-            // Have the sample listener receive events from the controller
-            controller.AddListener(listener);
+            StopRead = false;
 
-            // Keep this process running until Enter is pressed
-            Console.WriteLine("Press Enter to quit...");
-            while (true)
+            ThreadStart starter = () => Read(ref listener, ref controller);
+            leapReadThread = new Thread(starter);
+            leapReadThread.Name = "BBotLeapMotionWrapper:ReadThread";
+            leapReadThread.Start();            
+        }
+
+        #region Properties
+        public double Hand_X_Position
+        {
+            get
             {
-                System.Threading.Thread.Sleep(1000);
-                Console.ReadLine();
+                return listener.Hand_X_Position;
             }
+            set
+            {
+            }
+        }
+
+        public double Hand_Y_Position
+        {
+            get
+            {
+                return listener.Hand_Y_Position;
+            }
+            set
+            {
+            }
+        }
+        public double Hand_Z_Position
+        {
+            get
+            {
+                return listener.Hand_Z_Position;
+            }
+            set
+            {
+            }
+        }
+        public double Hand_Roll
+        {
+            get
+            {
+                return listener.Hand_Roll;
+            }
+            set
+            {
+            }
+        }
+        public double Hand_Pitch
+        {
+            get
+            {
+                return listener.Hand_Pitch;
+            }
+            set
+            {
+            }
+        }
+        public double Hand_Yaw
+        {
+            get
+            {
+                return listener.Hand_Yaw;
+            }
+            set
+            {
+            }
+        }
+        public bool Hand_Present
+        {
+            get
+            {
+                return listener.Hand_Present;
+            }
+            set
+            {
+            }
+        }
+
+        public bool StopRead { get; set; }
+
+
+
+        #endregion
+
+        void Read( ref SampleListener Listener, ref Controller Controller)
+        {
+  
+            // Have the sample listener receive events from the controller
+            Controller.AddListener(Listener);
+
+            while (!StopRead)
+            {
+                //Do thing here
+                //The listener class is gathering our data
+            }
+
             // Remove the sample listener when done
-            controller.RemoveListener(listener);
-            controller.Dispose();
+            Controller.RemoveListener(Listener);
+            Controller.Dispose();
+            Listener.Dispose();
+        }
+
+        public void ReadThreadDispose()
+        {
+            leapReadThread.Join();
         }
     }
 
 
+    //The following code was derrived from the LeapMotion SDK -
     /******************************************************************************\
     * Copyright (C) 2012-2013 Leap Motion, Inc. All rights reserved.               *
     * Leap Motion proprietary and confidential. Not for distribution.              *
@@ -44,6 +144,15 @@ namespace BBot
     \******************************************************************************/
     class SampleListener : Listener
     {
+
+        public double Hand_X_Position { get; set; }
+        public double Hand_Y_Position { get; set; }
+        public double Hand_Z_Position { get; set; }
+        public double Hand_Roll { get; set; }
+        public double Hand_Pitch { get; set; }
+        public double Hand_Yaw { get; set; }
+        public bool Hand_Present { get; set; }
+
         private Object thisLock = new Object();
 
         private void SafeWriteLine(String line)
@@ -79,20 +188,26 @@ namespace BBot
             SafeWriteLine("Exited");
         }
 
+        //Get's all the important hand information we need for BBot
+        //and sets it into the properties of this class.
         public override void OnFrame(Controller controller)
         {
             // Get the most recent frame and report some basic information
             Frame frame = controller.Frame();
 
+            /*
             SafeWriteLine("Frame id: " + frame.Id
                         + ", timestamp: " + frame.Timestamp
                         + ", hands: " + frame.Hands.Count
                         + ", fingers: " + frame.Fingers.Count
                         + ", tools: " + frame.Tools.Count
                         + ", gestures: " + frame.Gestures().Count);
-
+            */
+              
             if (!frame.Hands.IsEmpty)
             {
+                Hand_Present = true;
+
                 // Get the first hand
                 Hand hand = frame.Hands[0];
 
@@ -107,25 +222,43 @@ namespace BBot
                         avgPos += finger.TipPosition;
                     }
                     avgPos /= fingers.Count;
-                    SafeWriteLine("Hand has " + fingers.Count
-                                + " fingers, average finger tip position: " + avgPos);
+                    //SafeWriteLine("Hand has " + fingers.Count
+                    //            + " fingers, average finger tip position: " + avgPos);
+
+                    this.Hand_X_Position = avgPos.x;
+                    this.Hand_Y_Position = avgPos.y;
+                    this.Hand_Z_Position = avgPos.z;
                 }
 
                 // Get the hand's sphere radius and palm position
+                /*
                 SafeWriteLine("Hand sphere radius: " + hand.SphereRadius.ToString("n2")
                             + " mm, palm position: " + hand.PalmPosition);
+                 * */
 
                 // Get the hand's normal vector and direction
                 Vector normal = hand.PalmNormal;
                 Vector direction = hand.Direction;
 
                 // Calculate the hand's pitch, roll, and yaw angles
+                /*
                 SafeWriteLine("Hand pitch: " + direction.Pitch * 180.0f / (float)Math.PI + " degrees, "
                             + "roll: " + normal.Roll * 180.0f / (float)Math.PI + " degrees, "
                             + "yaw: " + direction.Yaw * 180.0f / (float)Math.PI + " degrees");
+                */
+
+                this.Hand_Roll = normal.Roll * 180.0f / (float)Math.PI;
+                this.Hand_Pitch = direction.Pitch * 180.0f / (float)Math.PI;
+                this.Hand_Yaw = direction.Yaw * 180.0f / (float)Math.PI;
+
+            }
+            else
+            {
+                Hand_Present = false;
             }
 
             // Get gestures
+            /*
             GestureList gestures = frame.Gestures();
             for (int i = 0; i < gestures.Count; i++)
             {
@@ -191,11 +324,12 @@ namespace BBot
                         break;
                 }
             }
+             * */
 
-            if (!frame.Hands.IsEmpty || !frame.Gestures().IsEmpty)
-            {
-                SafeWriteLine("");
-            }
+            //if (!frame.Hands.IsEmpty || !frame.Gestures().IsEmpty)
+            //{
+            //    SafeWriteLine("");
+            //}
         }
     }
 

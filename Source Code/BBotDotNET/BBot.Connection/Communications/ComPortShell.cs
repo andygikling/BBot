@@ -68,7 +68,6 @@ namespace BBot
 
         #endregion
 
-
         #region Properties
 
 
