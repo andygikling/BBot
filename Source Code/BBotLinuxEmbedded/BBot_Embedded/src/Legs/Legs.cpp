@@ -80,7 +80,15 @@ void Legs::Run()
 
 int Legs::UpdateDataBlock()
 {
-	Mark1_DataBlock_TX_.Control = MotorsSignalSourceSelect_ ? 0x1 : 0x0;
+	if (MotorsSignalSourceSelect_)
+	{
+		Mark1_DataBlock_TX_.Control |= 0x1;
+	}
+	else
+	{
+		Mark1_DataBlock_TX_.Control &= 0xFE;
+	}
+
 	Mark1_DataBlock_TX_.Servo0_Position = LeftMotorSpeed_;
 	Mark1_DataBlock_TX_.Servo1_Position = RightMotorSpeed_;
 }

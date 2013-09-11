@@ -39,7 +39,7 @@
 
 //Enable Trace statements
 //If trace is set to true this software will be verbose
-//#define DEBUG 0
+#define DEBUG 0
 
 #define FALSE 0
 #define TRUE 1
@@ -57,6 +57,7 @@
 #define SPI_BIT_RATE_HZ						6000000
 #define SPI_MARK1_DATABLOCK_UPDATE_RATE_US 	10000
 #define SPI_MAIN_LOOP_COUNT_TARGET			100
+
 //Struct that represents the 128bit data block that is passed to and from the
 //FPGA on an interval in the Mark1FPGA thread.
 struct Mark1_DataBlock_TX{
@@ -90,7 +91,8 @@ struct Mark1_DataBlock_RX{
 	u_int8_t Empty8_3;
 };
 
-
+//Constants that are defined in the "BBot API"
+//See the txt file in the .Net project for definitions
 std::string const VOICE_FUNC_0("V00");
 std::string const VOICE_FUNC_1("V01");
 std::string const VOICE_FUNC_2("V02");
@@ -110,6 +112,11 @@ std::string const CUSTOM_FUNC_4("C04");
 std::string const CUSTOM_FUNC_5("C05");
 std::string const CUSTOM_FUNC_6("C06");
 std::string const CUSTOM_FUNC_7("C07");
+std::string const CUSTOM_FUNC_8("C08");
+
+std::string const EYE_FUNC_0("E00");
+std::string const EYE_FUNC_1("E01");
+std::string const EYE_FUNC_2("E02");
 
 
 #endif /* BBONECONSTANTS_H_ */

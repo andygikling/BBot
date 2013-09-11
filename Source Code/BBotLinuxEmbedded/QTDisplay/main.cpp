@@ -3,6 +3,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
+//Remove the mouse pointer from view
 #include <QWSServer>
 
 int main(int argc, char *argv[])

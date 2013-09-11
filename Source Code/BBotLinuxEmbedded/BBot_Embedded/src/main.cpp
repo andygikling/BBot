@@ -337,6 +337,16 @@ int listenForCommands()
 		res1 = read(fd1,buf1,sizeof(buf1));
 		buf1[res1]=0;             /* set end of string, so we can printf */
 
+		for(int i = 0; i < res1; i++)
+		{
+			//Here we're going to bomb on all the carriage returns and new lines
+			//because they can easily confuse parsing the data
+			if(buf1[i] == 0xA || buf1[i] == 0xD)
+			{
+				buf1[i] = 0;
+			}
+		}
+
 		parseMessage(buf1,res1);
 	}
 	return 1;
@@ -345,34 +355,21 @@ int listenForCommands()
 int parseMessage(char *msg, int length)
 {
 	string s(msg);
-	string s1(msg);
 
 	//Check for a null message
 	//If it is null we need to ignore it - otherwise the logic
 	//bewlow will fall down.
 	if (msg[0] == 0)
 	{
-		AcknowledgeMessage("Message Acknowledge : Message Is Null : Message = " + s1);
+		AcknowledgeMessage("Message Acknowledge : Message Is Null : Message = " + s);
 		return 0;
 	}
 
-	//Also make sure there is a termination char at the end so the logic below works...
-	if( (msg[length-1] != 0xA) && (msg[length-1] != 0x20) )
-	{
-		AcknowledgeMessage("Message Acknowledge : Message Has No Termination char : Message = " + s1);
-		return 0;
-	}
+	addToLog("ListenThread", "Message In - Parsing Message : " + s, true);
 
-	addToLog("ListenThread", "Message In - Parsing Message : " + s1.erase(s.length()-1, 2), true);
-
-	std::vector<std::string> splitMessage = StringSplit(s, " \r", false);
+	std::vector<std::string> splitMessage = StringSplit(s, " ", false);
 
 	addToLog("ListenThread", "Message In - String Split Complete", true);
-
-	//All messages are set with \r at the end, here we remove it to make the
-	//log look correct...
-	std::string logString = "Message Contents: " + s.erase(s.length()-1, 2);
-	addToLog("ListenThread", logString, true);
 
 	int f = s.find_first_of(" ");
 	string operand( &(s[f+1]) );
@@ -458,7 +455,6 @@ int parseMessage(char *msg, int length)
 
 			legs_thread_ptr->SetDriveSpeeds(motorSpeed_L, motorSpeed_R);
 			legs_thread_ptr->SetSem();
-
 		}
 	}
 	else if(*splitMessage.begin() == LEGS_FUNC_1)
@@ -495,14 +491,62 @@ int parseMessage(char *msg, int length)
 	}
 	else if(*splitMessage.begin() == CUSTOM_FUNC_5)
 	{
-		EnableLog_ = true;
+		EnableLog_ = false;
+		AcknowledgeMessage("Logging Disabled");
 	}
 	else if(*splitMessage.begin() == CUSTOM_FUNC_6)
 	{
-		EnableLog_ = false;
+		EnableLog_ = true;
+		AcknowledgeMessage("Logging Enabled");
+	}
+	else if(*splitMessage.begin() == CUSTOM_FUNC_7)
+	{
+		Mark1_DataBlock_TX_.GPIO_Out &= 0xFD; //Using GPIO out bit 2
+		AcknowledgeMessage("Alarm On");
+	}
+	else if(*splitMessage.begin() == CUSTOM_FUNC_8)
+	{
+		Mark1_DataBlock_TX_.GPIO_Out |= 0x2; //Using GPIO out bit 2
+		AcknowledgeMessage("Alarm Off");
 	}
 
-	usleep(5000);
+	else if(*splitMessage.begin() == EYE_FUNC_0)
+	{
+		//Set Camera signal source to remote control
+		Mark1_DataBlock_TX_.Control &= 0xFD;
+		AcknowledgeMessage("Camera Control Set to Remote");
+	}
+	else if(*splitMessage.begin() == EYE_FUNC_1)
+	{
+		//Set camera signal source to software
+		Mark1_DataBlock_TX_.Control |= 0x2;
+		AcknowledgeMessage("Camera Control Set to Software");
+	}
+	else if(*splitMessage.begin() == EYE_FUNC_2)
+	{
+		if(splitMessage.size() >= 2)
+		{
+			int8_t panPos;
+			int8_t tiltPos;
+			//Get left motor value
+			strcpy(&v[0], splitMessage[1].c_str());		//Put first operand in v at location 0
+			strcat(v, "\0");							//Add null to the end to define the end of the string
+
+			panPos = atol(v);
+
+			strcpy(&v[0], splitMessage[2].c_str());		//Put first operand in v at location 0
+			strcat(v, "\0");							//Add null to the end to define the end of the string
+
+			tiltPos = atol(v);
+
+			Mark1_DataBlock_TX_.Servo2_Position = panPos;
+			Mark1_DataBlock_TX_.Servo3_Position = tiltPos;
+			AcknowledgeMessage("New Camera Pan And Tilt Set");
+		}
+	}
+
+
+	//usleep(5000);
 	addToLog("ListenThread", "Message In - End Parse", true);
 
 	return 1;

@@ -132,7 +132,7 @@ void MyGraphicsScene::DisplayFile_(QString filename)
     pen.setWidth(5);
 
     QBrush brush(painter.brush());
-    brush.setColor(Qt::green);
+    brush.setColor(Qt::red);
     brush.setStyle(Qt::SolidPattern);
 
     QPainterPath pp;
