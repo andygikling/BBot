@@ -24,20 +24,5 @@ namespace BBot
             InitializeComponent();
         }
 
-        private void Button_Click_SetDebugOverlay(object sender, RoutedEventArgs e)
-        {
-           QuickButtonsViewModel v = (QuickButtonsViewModel)DataContext;
-           v.QuickButtonsModel.SetDebugOverlayOnScreen();
-        }
-
-        
-        private void Button_Click_ClearDebugOverlay(object sender, RoutedEventArgs e)
-        {
-           QuickButtonsViewModel v = (QuickButtonsViewModel)DataContext;
-           v.QuickButtonsModel.ClearDebugOverlayOnScreen();
-        }
-
-
-
     }
 }

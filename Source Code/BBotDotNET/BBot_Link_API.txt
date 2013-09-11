@@ -51,6 +51,8 @@ Command Code C
 04= Set Mark1FPGAThread Debug Overlay on Video Screen
 05= Enable Logging (is defualt)
 06= Disable Logging (when running Leap Motion)
+07= Disable Alarm
+08= Enable Alarm
 
 
 Eye 

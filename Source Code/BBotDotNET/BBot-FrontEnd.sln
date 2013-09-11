@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Desktop
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BBot.Voice", "BBot.Voice\BBot.Voice.csproj", "{B2A71528-7795-4127-8DD9-4B2580BFEE77}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1AF6C814-BBD2-458D-878A-EFE912DBB4C7} = {1AF6C814-BBD2-458D-878A-EFE912DBB4C7}
@@ -25,6 +25,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8BE80609-2696-401A-9CAB-D28AFA1B83CC}"
 	ProjectSection(SolutionItems) = preProject
 		BBot_Link_API.txt = BBot_Link_API.txt
+		ToDo.txt = ToDo.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BBot.Eye", "BBot.Eye\BBot.Eye.csproj", "{F9A7E17A-07D5-416C-8ABD-97A2A73F7238}"

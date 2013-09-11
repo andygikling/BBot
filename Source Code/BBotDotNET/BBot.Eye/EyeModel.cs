@@ -98,7 +98,13 @@ namespace BBot
         {
             string msg = "";
             msg += op_EyeSoftwareSetPanTiltPosition;
-            msg += " " + PanPosition.ToString() + " " + TiltPosition.ToString() + op_Termination;
+            //Direction of sliders increasing value doesn't match increasing pulse width
+            //movement of servo...  we could invert it anywhere... Here is just as fine a place 
+            //as any (could invert it in the C++ on the BeagleBone Black or on the FPGA)
+            //"Invert the direction by subtrating the position from our max range value of 200
+            int pan = 200 - PanPosition;
+            int tilt = 200 - TiltPosition;
+            msg += " " +  pan.ToString() + " " + tilt.ToString() + op_Termination;
             SendMessage(msg);
         }
         

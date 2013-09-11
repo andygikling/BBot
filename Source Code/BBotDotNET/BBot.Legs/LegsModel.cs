@@ -152,9 +152,7 @@ namespace BBot
                 leapMotionEnable = value;
                 
                 if (LeapListenThread == null && value)
-                {
-                    SendMessage("C06 \r"); //Disable Logger
-                    
+                {                    
                     leapWrapper = new BBotLeapMotionWrapper();
                     LeapListenThread = new Thread(LeampMotionListener);
                     LeapMotionThread_StopRead = false;
@@ -171,8 +169,6 @@ namespace BBot
                         LeapListenThread.Join();
                         leapWrapper = null;
                         LeapListenThread = null;
-
-                        SendMessage("C05 \r"); //Enable Logger
                     }
                     catch (Exception e)
                     {
@@ -308,9 +304,7 @@ namespace BBot
 
             while (!LeapMotionThread_StopRead)
             {
-                
-                System.Threading.Thread.Sleep(200);
-
+                System.Threading.Thread.Sleep(50);
                 System.Diagnostics.Trace.WriteLine("BBotLeapRead - X=" + (leapWrapper.Hand_X_Position.ToString() +
                                                     " Y=" + leapWrapper.Hand_Y_Position.ToString() +
                                                     " Z=" + leapWrapper.Hand_Z_Position.ToString() +

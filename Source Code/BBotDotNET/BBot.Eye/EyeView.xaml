@@ -25,11 +25,11 @@
                         <RowDefinition Height="10*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width=".8*"/>
                         <ColumnDefinition Width="10*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Slider Grid.Column="1" Grid.ColumnSpan="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,8,5,0" 
+                    <Slider Grid.Column="1" Grid.ColumnSpan="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,8,5,0" 
                             Maximum="200" TickFrequency="10" TickPlacement="TopLeft"
                             Value="{Binding Path=EyeModel.PanPosition, Mode=TwoWay}" SmallChange="10" LargeChange="20" IsSnapToTickEnabled="True" IsMoveToPointEnabled="True"/>
                     <Slider Grid.Column="0" Grid.ColumnSpan="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" 
