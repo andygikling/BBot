@@ -23,7 +23,7 @@ module BBotFPGA_TopLevel(
 
 	input 	OSC_FPGA,
 	
-	input 	GPMC_AD12,	//SoftwareReset
+	input 	GPMC_AD12,	//Software System Reset
 
 	output 	LEDOutput0,
 	output 	LEDOutput1,
@@ -37,7 +37,7 @@ module BBotFPGA_TopLevel(
 	input 	Button0,
 	input 	Button1,
 	input 	Button2,
-	input 	Button3,	//System Reset
+	input 	Button3,		//System Reset
 	
 	input 	DipSW0,
 	input 	DipSW1,
@@ -50,8 +50,8 @@ module BBotFPGA_TopLevel(
 	input 	GPMC_ADVN,		//UART_Mux_Select_0
 	input 	GPMC_BE0N,		//UART_Mux_Select_1
 	input		GPMC_AD13,		//UART_Mux_Select_2
-	input 	PMOD4_3,			//Voice_UART_1_TX
-	output 	PMOD4_4,			//Voice_UART_1_RX
+	//input 		PMOD4_3,			//Voice_UART_1_TX
+	//output 	PMOD4_4,			//Voice_UART_1_RX
 	input 	PMOD4_7,			//UART_2_TX
 	output 	PMOD4_8,			//UART_2_RX
 	input 	PMOD4_9,			//UART_3_TX
@@ -81,6 +81,12 @@ module BBotFPGA_TopLevel(
 	input 	GPMC_AD14,
 	input 	GPMC_AD15,
 	
+	//GPIO
+	output 	PMOD4_1,			//Not Assigned
+	output 	PMOD4_2,			//Alarm Out
+	output 	PMOD4_3,			//Not Assigned
+	output 	PMOD4_4,			//Not Assigned
+	
 	//Test outputs
 	output	PMOD2_1,
 	output 	PMOD2_2,
@@ -103,6 +109,7 @@ module BBotFPGA_TopLevel(
 	reg[7:0] LED_reg;
 	
 	reg temp1, temp2, temp3;
+	wire temp4;
 	
 	wire Reset_l;
 	
@@ -140,6 +147,8 @@ module BBotFPGA_TopLevel(
 	wire [31:0] CurrentEncoderCount_Left, CurrentEncoderCount_Right;
 	wire Direction_Left, Direction_Right;
 	
+	reg Alarm_reg;
+	
 	reg [63:0] ClockEdgeCounter;
 	reg [31:0] HBeatCounter;
 
@@ -154,32 +163,32 @@ module BBotFPGA_TopLevel(
 		if (Reset_l == 0)
 		begin
 		
-			LED_reg[7:0] <= 8'h00;
-			CurrentEncoderCount_Left_reg[31:0] <= 32'h80000000;	//Start at half way to avoid encoder roll over completely...
+			LED_reg[7:0] 								<= 8'h00;
+			CurrentEncoderCount_Left_reg[31:0] 	<= 32'h80000000;	//Start at half way to avoid encoder roll over completely...
 			CurrentEncoderCount_Right_reg[31:0] <= 32'h80000000;
-			LeftMotorSpeed_Percent[7:0] <= 8'd100;
-			RightMotorSpeed_Percent[7:0] <= 8'd100;
-			CameraPanPosition_Percent[31:0] <= 32'd100;
-			CameraTiltPosition_Percent[31:0] <= 32'd100;
-			LeftMotorSpeed_50MHzPulses <= RC_ZeroPoint_Pulses;
-			RightMotorSpeed_50MHzPulses <= RC_ZeroPoint_Pulses;
-			CameraPanPosition_50MHzPulses <= RC_ZeroPoint_Pulses;
-			CameraTiltPosition_50MHzPulses <= RC_ZeroPoint_Pulses;
+			LeftMotorSpeed_Percent[7:0] 			<= 8'd100;
+			RightMotorSpeed_Percent[7:0] 			<= 8'd100;
+			CameraPanPosition_Percent[31:0] 		<= 32'd100;
+			CameraTiltPosition_Percent[31:0] 	<= 32'd100;
+			LeftMotorSpeed_50MHzPulses 			<= RC_ZeroPoint_Pulses;
+			RightMotorSpeed_50MHzPulses 			<= RC_ZeroPoint_Pulses;
+			CameraPanPosition_50MHzPulses 		<= RC_ZeroPoint_Pulses;
+			CameraTiltPosition_50MHzPulses 		<= RC_ZeroPoint_Pulses;
 			
 			//SPI resets
 			SPI_wren_i_reg <= 1'h0;
 			SPI_ChipSelectIntervalCounter_reg <= 32'd0;
 			
 			//HBeat reaches 0 in 500ms when clock is running @ 50MHz
-			HBeatCounter <= 32'd25000000;
-			
+			HBeatCounter <= 32'd25000000;			
 		
 		end
 		else
 		begin
 		
 			//Do this logic on every rising edge of the clock signal OSC_FPGA
-			//Use LED bank for debug
+			
+			//Use LED bank for debug - selectable via the 4 on board switches
 			//Mode 0
 			if (DipSW3 == 1'h0 && DipSW2 == 1'h0 && DipSW1 == 1'h0 && DipSW0 == 1'h0)
 			begin
@@ -227,17 +236,17 @@ module BBotFPGA_TopLevel(
 			//Mode 9
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h0 && DipSW1 == 1'h0 && DipSW0 == 1'h1)
 			begin				
-				LED_reg[7:0] <= SPI_do_o_reg[15:8];
+				LED_reg[7:0] <= SPI_do_o_reg[31:24];
 			end
 			//Mode 10
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h0 && DipSW1 == 1'h1 && DipSW0 == 1'h0)
 			begin				
-				LED_reg[7:0] <= SPI_do_o_reg[23:16];
+				LED_reg[7:0] <= SPI_do_o_reg[39:32];
 			end
 			//Mode 11
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h0 && DipSW1 == 1'h1 && DipSW0 == 1'h1)
 			begin				
-				LED_reg[7:0] <= SPI_do_o_reg[31:24];
+				LED_reg[7:0] <= SPI_do_o_reg[47:40];
 			end
 			
 			//Mode 12
@@ -260,8 +269,7 @@ module BBotFPGA_TopLevel(
 			begin				
 				LED_reg[7:0] <= RightMotorSpeed_50MHzPulses[31:24];
 			end
-			
-		
+				
 			//temp1 <= 1'b0;
 			//temp2 <= 1'b0;
 			temp3 <= 1'b0;
@@ -292,7 +300,6 @@ module BBotFPGA_TopLevel(
 				//								FPGA_MSByte						FPGA_LSByte
 				//		SPI_do_o[31:0] = {BBotChar[0], BBotChar[1], BBotChar[2]};
 				//
-				//
 				//So we need to swap the byte order so that the least significant 
 				//byte of our DataBlock_TX struct in the C++ code correlates with 
 				//SPI_do_o_reg[7:0]... not totally required but it makes it easier to
@@ -314,8 +321,12 @@ module BBotFPGA_TopLevel(
 				SPI_do_o_reg[119:112]	<= SPI_do_o[15:8];
 				SPI_do_o_reg[127:120]	<= SPI_do_o[7:0];
 				
-				RightMotorSpeed_Percent[7:0] <= SPI_do_o_reg[15:8];
-				LeftMotorSpeed_Percent[7:0] <= SPI_do_o_reg[23:16];
+				//Local routing of received data
+				RightMotorSpeed_Percent[7:0] 		<= SPI_do_o_reg[15:8];
+				LeftMotorSpeed_Percent[7:0] 		<= SPI_do_o_reg[23:16];
+				CameraPanPosition_Percent[7:0]	<= SPI_do_o_reg[31:24];
+				CameraTiltPosition_Percent[7:0]	<= SPI_do_o_reg[39:32];
+				Alarm_reg 								<= SPI_do_o_reg[41];
 				
 			end
 		
@@ -370,8 +381,8 @@ module BBotFPGA_TopLevel(
 	assign UART_Mux_Select_1 = GPMC_BE0N;
 	assign UART_Mux_Select_2 = GPMC_AD13;
 	//UART 1 signals
-	assign Voice_UART_TX = PMOD4_3;
-	assign PMOD4_4 = Voice_UART_RX;
+	assign Voice_UART_TX = 1'h0;
+	assign temp4 = Voice_UART_RX;
 	//UART 2 signals
 	assign UART_2_TX = PMOD4_7;
 	assign PMOD4_8 = UART_2_RX;
@@ -443,6 +454,12 @@ module BBotFPGA_TopLevel(
 	assign LEDOutput5 = LED_reg[5];
 	assign LEDOutput6 = LED_reg[6];
 	assign LEDOutput7 = LED_reg[7];
+	
+	//Alarm
+	assign PMOD4_1 = 1'h0;
+	assign PMOD4_2 = Alarm_reg;
+	assign PMOD4_3 = 1'h0;
+	assign PMOD4_4 = 1'h0;
 	
 	//test
 	assign PMOD2_1 = temp1;

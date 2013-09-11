@@ -67,6 +67,13 @@ NET "PMOD3_10" 	LOC = P11;			# IO_L49N_3							Encoder_L_B					(In)
 NET "GPMC_AD14" 	LOC = P98;			# IO_L34P_1							Encoder_R_A					(In)
 NET "GPMC_AD15" 	LOC = P97;			# IO_L34N_1							Encoder_R_A					(In)
 
+#GPIO
+NET "PMOD4_1"            LOC = "P133"; # IO_L34N_GCLK18_0			GPIO 1
+NET "PMOD4_2"            LOC = "P132"; # IO_L35P_GCLK17_0			GPIO 2 	Alarm Output
+NET "PMOD4_3"            LOC = "P131"; # IO_L35N_GCLK16_0			GPIO 3
+NET "PMOD4_4"            LOC = "P127"; # IO_L36P_GCLK15_0			GPIO 4
+
+
 NET "PMOD2_1"     LOC = "P10";  		# IO_L50P_3							Test1
 NET "PMOD2_2"     LOC = "P9";   		# IO_L50N_3							Test2
 NET "PMOD2_3"     LOC = "P8";   		# IO_L51P_3							Test3
