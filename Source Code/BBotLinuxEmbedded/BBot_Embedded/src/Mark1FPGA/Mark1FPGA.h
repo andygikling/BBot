@@ -44,6 +44,9 @@ private:
 
 	double legsEncoderConvert_cts_per_mm_;
 
+	double VelocityLeft_;
+	double VelocityRight_;
+
 	int addToLog(std::string Source, std::string Content, bool AlsoPrintf);
 
 	int CreateLogOutputFile();
@@ -60,7 +63,8 @@ public:
 
 	int spiWriteRead( unsigned char *data, int length);
 
-
+	static double VelocityLeft;
+	static double VelocityRight;
 
 };
 

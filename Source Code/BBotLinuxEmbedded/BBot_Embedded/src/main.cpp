@@ -20,6 +20,7 @@
 #include <semaphore.h>
 #include <pthread.h>
 #include <ctime>
+#include <stdexcept>      // std::out_of_range
 
 #include <BBoneConstants.h>
 #include <Utilities/SimpleGPIO.h>
@@ -83,7 +84,7 @@ int main(int argc,char** argv)
 
 	//Here we sleep to allow other start up processes to finish
 	//Specifically, we want the RTC clock time to be set before
-	//this process starts and creates the log files
+	//this process starts - otherwise our log files have the wrong time stamp
 #ifndef DEBUG
 	cout << "BBot Embedded - Release Mode" << endl;
 	sleep(25);
@@ -95,6 +96,7 @@ int main(int argc,char** argv)
 	//Create text file for debug info (this will be displayed on the BBot screen)
 	EnableLog_ = true;
 	createLogOutputFile();
+	clearTextOutputFileSimlink();
 
 	//Hold Mark1 FPGA in reset until done initializing everything
 	gpio_export(MARK1_SOFTWARE_RESET_N);
@@ -112,20 +114,15 @@ int main(int argc,char** argv)
 	Mark1_DataBlock_RX_ptr_ = &Mark1_DataBlock_RX_;
 
 	//Run Mark1 FPGA
+	usleep(10000);
 	gpio_set_value(MARK1_SOFTWARE_RESET_N, HIGH);
 
 	spawnHelperThreads(fd1);
 
 	//Now we simply loop doing reads on the UART1 port.
-	//The first read only returns when the delimiter is found (\0);
+	//The first read only returns when the delimiter is found (\r);
 	//Doing a "blocking" read prevents this process's thread from eating up
-	//and the CPU time.
-	/*
-	 terminal settings done, now handle input
-	 In this example, inputting a 'z' at the beginning of a line will
-	 exit the program.
-	*/
-
+	//all the CPU time.
 	addToLog("ListenThread", "Main Loop Entry", true);
 
 	listenForCommands();
@@ -358,16 +355,37 @@ int parseMessage(char *msg, int length)
 
 	//Check for a null message
 	//If it is null we need to ignore it - otherwise the logic
-	//bewlow will fall down.
+	//below will fall down
 	if (msg[0] == 0)
 	{
 		AcknowledgeMessage("Message Acknowledge : Message Is Null : Message = " + s);
 		return 0;
 	}
 
-	addToLog("ListenThread", "Message In - Parsing Message : " + s, true);
+	addToLog("ListenThread", "Message In - Parsing Message : " + s + ".", true);
 
-	std::vector<std::string> splitMessage = StringSplit(s, " ", false);
+	//Had a lot of trouble with this StringSplit function
+	//here we use a try catch block to catch any error conditions
+	//that may happen without crashing the program
+	std::vector<std::string> splitMessage;
+	try
+	{
+		splitMessage = StringSplit(s, " ", false);
+	}
+	catch(const std::out_of_range& oor)
+	{
+		std::string what(oor.what());
+		addToLog("ListenThread", "String Split Failed: oor=" + what, true);
+	}
+	catch(const std::exception& ex)
+	{
+		std::string what(ex.what());
+		addToLog("ListenThread", "String Split Failed: ex=" + what, true);
+	}
+	catch(...)
+	{
+		cout << "StringSplit Catch: " << endl;
+	}
 
 	addToLog("ListenThread", "Message In - String Split Complete", true);
 
@@ -376,7 +394,9 @@ int parseMessage(char *msg, int length)
 
 	char v[MAX_SERIAL_BUFFER_SIZE];
 
-	if(*splitMessage.begin() == VOICE_FUNC_0)
+	std:string MsgOpCode = *splitMessage.begin();
+
+	if(MsgOpCode == VOICE_FUNC_0)
 	{
 		// voice type (0..8)
 		if(splitMessage.size() >= 2)
@@ -467,6 +487,21 @@ int parseMessage(char *msg, int length)
 		legs_thread_ptr->SetControlSource(true);
 		legs_thread_ptr->SetSem();
 	}
+	else if(*splitMessage.begin() == LEGS_FUNC_3)
+	{
+		if(splitMessage.size() >= 2)
+		{
+			strcpy(&v[0], splitMessage[1].c_str());
+			if(v[0] == '1')
+			{
+				legs_thread_ptr->SetVelocityMonitorEnable(true);
+			}
+			else
+			{
+				legs_thread_ptr->SetVelocityMonitorEnable(false);
+			}
+		}
+	}
 
 	else if(*splitMessage.begin() == CUSTOM_FUNC_0)
 	{
@@ -553,7 +588,7 @@ int parseMessage(char *msg, int length)
 }
 
 //Function from: http://stackoverflow.com/questions/10051679/c-tokenize-string
-std::vector<std::string> inline StringSplit(const std::string &source, const char *delimiter = " ", bool keepEmpty = false)
+std::vector<std::string> StringSplit(const std::string &source, const char *delimiter = " ", bool keepEmpty = false)
 {
     std::vector<std::string> results;
 
@@ -597,20 +632,25 @@ int addToLog(std::string Source, std::string Content, bool AlsoPrintf)
 
 	//std::string entry = dateAndTime + " : " + Source + " : " + Content + "\r\n";
 
-	if (EnableLog_)
+	try
 	{
-		std::string entry = Source + " : " + Content + "\r\n";
-
-		debugFileStream << entry;
-		debugFileStream.flush();
-
-		if(AlsoPrintf)
+		if (EnableLog_)
 		{
-			std::string s = "Print: " + entry + "\r";
-			char *c = new char[s.size()];
-			strcpy(c, s.c_str());
-			printf(c);
+			std::string entry = Source + " : " + Content + "\r\n";
+
+			debugFileStream << entry;
+			debugFileStream.flush();
+
+			if(AlsoPrintf)
+			{
+				std::string s = "Print: " + entry + "\r";
+				printf(s.c_str());
+			}
 		}
+	}
+	catch(...)
+	{
+		cout << "AddTooLog Catch: " << endl;
 	}
 
 	return 1;

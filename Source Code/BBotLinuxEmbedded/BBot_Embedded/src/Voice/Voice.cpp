@@ -211,9 +211,7 @@ int Voice::addToLog(std::string Source, std::string Content, bool AlsoPrintf)
 	if(AlsoPrintf)
 	{
 		std::string s = "Print: " + entry + "\r";
-		char *c = new char[s.size()];
-		strcpy(c, s.c_str());
-		printf(c);
+		printf(s.c_str());
 	}
 
 	return 1;

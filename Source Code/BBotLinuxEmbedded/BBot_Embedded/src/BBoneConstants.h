@@ -12,7 +12,6 @@
 #ifndef BBONECONSTANTS_H_
 #define BBONECONSTANTS_H_
 
-#define PINMUX_PATH_K3Dot2 "/sys/kernel/debug/omap_mux"
 #define PATH_TO_LISTEN_THREAD_DEBUG_FILE "/home/root/Debug_ListenThread.txt"
 #define PATH_TO_VOICE_THREAD_DEBUG_FILE "/home/root/Debug_VoiceThread.txt"
 #define PATH_TO_LEGS_THREAD_DEBUG_FILE "/home/root/Debug_LegsThread.txt"
@@ -26,7 +25,6 @@
 /* change this definition for the correct port */
 #define MODEMDEVICE_UART1 "/dev/ttyO1"
 #define MODEMDEVICE_UART4 "/dev/ttyO4"
-#define _POSIX_SOURCE 1 /* POSIX compliant source */
 
 //GPIO and pin mux constants
 //#define UART1_RXD_GPIO_PIN_NUM 			14		//P9_24 - Don't need - setup in the Overlay
@@ -39,8 +37,7 @@
 
 //Enable Trace statements
 //If trace is set to true this software will be verbose
-#define DEBUG 0
-
+#define DEBUG
 #define FALSE 0
 #define TRUE 1
 
@@ -49,6 +46,7 @@
 //wheel diameter is 5 inch (circumference is then Pi*127mm)
 //=5.13306 counts per millimeter
 #define LEGS_ENCODER_CONVERT_CTS_PER_MM 	5.13306
+#define VELOCITY_TRANSMIT_INTERVAL_US		1000000
 
 //SPI Settings
 #define SPI_PATH_TO_SPI_DEVICE 				"/dev/spidev1.0"
@@ -56,7 +54,7 @@
 #define SPI_BITS_PER_WORD 					8
 #define SPI_BIT_RATE_HZ						6000000
 #define SPI_MARK1_DATABLOCK_UPDATE_RATE_US 	10000
-#define SPI_MAIN_LOOP_COUNT_TARGET			100
+#define SPI_MAIN_LOOP_COUNT_TARGET			13		//Get a new velocity about 2 times a second
 
 //Struct that represents the 128bit data block that is passed to and from the
 //FPGA on an interval in the Mark1FPGA thread.
@@ -103,6 +101,7 @@ std::string const VOICE_FUNC_5("V05");
 std::string const LEGS_FUNC_0("L00");
 std::string const LEGS_FUNC_1("L01");
 std::string const LEGS_FUNC_2("L02");
+std::string const LEGS_FUNC_3("L03");
 
 std::string const CUSTOM_FUNC_0("C00");
 std::string const CUSTOM_FUNC_1("C01");

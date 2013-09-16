@@ -11,6 +11,9 @@ using namespace std;
 
 void* pstart_Mark1FPGA(void* ref);
 
+double Mark1FPGA::VelocityLeft = 0.0;
+double Mark1FPGA::VelocityRight = 0.0;
+
 Mark1FPGA::Mark1FPGA(Mark1_DataBlock_TX &DataBlock_TX, Mark1_DataBlock_RX &DataBlock_RX) :
 		Mark1_DataBlock_TX_(DataBlock_TX), Mark1_DataBlock_RX_(DataBlock_RX),
 		previousEncoderCount_Left_(0), previousEncoderCount_Right_(0),
@@ -71,11 +74,10 @@ void Mark1FPGA::Run()
 		u_int32_t currentEncoderCount_Left_ = Mark1_DataBlock_RX_.EncoderLeft_Count;
 		u_int32_t currentEncoderCount_Right_ = Mark1_DataBlock_RX_.EncoderRight_Count;
 
-
 		//Every so often sample the wheel velocity
 		if(MainLoopCount_ == SPI_MAIN_LOOP_COUNT_TARGET)
 		{
-
+			//Debug
 			std::string s1 = std::to_string(SPI_Interval_);
 			std::string s2 = std::to_string(currentEncoderCount_Left_);
 			std::string s3 = std::to_string(currentEncoderCount_Right_);
@@ -83,22 +85,29 @@ void Mark1FPGA::Run()
 			double distanceTraveled_Left_mm = 0;
 			double distanceTraveled_Right_mm = 0;
 			double velocity_Left, velocity_Right = 0;
+			double target = SPI_MAIN_LOOP_COUNT_TARGET;
 
 			//Calc average velocity over MainLoopCount_ == SPI_MAIN_LOOP_COUNT_TARGET time interval
 			if(previousEncoderCount_Left_ != 0)
 			{
 				distanceTraveled_Left_mm = (currentEncoderCount_Left_ - previousEncoderCount_Left_) / legsEncoderConvert_cts_per_mm_;
-				velocity_Left = distanceTraveled_Left_mm / (SPI_MAIN_LOOP_COUNT_TARGET / 100);
+				double temp1 = distanceTraveled_Left_mm / (target / 100.0);
+				velocity_Left = temp1;
 			}
 
 			if(previousEncoderCount_Right_ != 0)
 			{
 				distanceTraveled_Right_mm = (currentEncoderCount_Right_ - previousEncoderCount_Right_) / legsEncoderConvert_cts_per_mm_;
-				velocity_Right = distanceTraveled_Right_mm / (SPI_MAIN_LOOP_COUNT_TARGET / 100);
+				double temp2 = distanceTraveled_Right_mm / (target / 100.0);
+				velocity_Right = temp2;
 			}
 
 			previousEncoderCount_Left_ = currentEncoderCount_Left_;
 			previousEncoderCount_Right_ = currentEncoderCount_Right_;
+
+			//Set global velocity so the LegsThread can read it and send back to the GUI
+			Mark1FPGA::VelocityLeft = velocity_Left;
+			Mark1FPGA::VelocityRight = velocity_Right;
 
 			MainLoopCount_ = 0;
 		}
@@ -231,9 +240,7 @@ int Mark1FPGA::addToLog(std::string Source, std::string Content, bool AlsoPrintf
 	if(AlsoPrintf)
 	{
 		std::string s = "Print: " + entry + "\r";
-		char *c = new char[s.size()];
-		strcpy(c, s.c_str());
-		printf(c);
+		printf(s.c_str());
 	}
 
 	return 1;
@@ -266,3 +273,4 @@ int Mark1FPGA::CreateLogOutputFile()
 	debugFileStream.flush();
 	return 1;
 }
+

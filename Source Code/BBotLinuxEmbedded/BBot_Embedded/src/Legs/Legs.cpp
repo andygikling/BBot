@@ -8,13 +8,16 @@
 
 
 #include "Legs.h"
+//Need to access the public velocity values
+#include "../Mark1FPGA/Mark1FPGA.h"
 
 using namespace std;
 
 void* pstart_Legs(void* ref);
+void* pstart_LegsVelocityMonitor(void* ref);
 
 Legs::Legs(int UART1fd, Mark1_DataBlock_TX &DataBlock_TX, Mark1_DataBlock_RX &DataBlock_RX) :
-		Mark1_DataBlock_TX_(DataBlock_TX), Mark1_DataBlock_RX_(DataBlock_RX)
+		Mark1_DataBlock_TX_(DataBlock_TX), Mark1_DataBlock_RX_(DataBlock_RX), VelocityMonitorEnable_(false)
 {
 	sem_init(&sem, 0, 0);
 
@@ -27,8 +30,8 @@ Legs::Legs(int UART1fd, Mark1_DataBlock_TX &DataBlock_TX, Mark1_DataBlock_RX &Da
 	RightMotorSpeed_ = 0x00;
 
 	pthread_t thread;
-	int e = pthread_create(&thread, NULL, pstart_Legs, (void*)this);
-
+	int err1 = pthread_create(&thread, NULL, pstart_Legs, (void*)this);
+	int err2 = pthread_create(&thread, NULL, pstart_LegsVelocityMonitor, (void*)this);
 }
 
 
@@ -43,6 +46,13 @@ Legs::~Legs() {
 void* pstart_Legs(void* ref) {
 	Legs* v = (Legs*)(ref);
 	v->Run();
+	return (void*)0;
+}
+
+// thread entry point
+void* pstart_LegsVelocityMonitor(void* ref) {
+	Legs* v = (Legs*)(ref);
+	v->RunVelocityMonitor();
 	return (void*)0;
 }
 
@@ -74,8 +84,31 @@ void Legs::Run()
 		sem_wait(&sem);
 
 		UpdateDataBlock();
-		AcknowledgeMessage("LegsThread : Acknowledge");
+		AcknowledgeMessage("Received New Motor Parameters");
 	}
+}
+
+void Legs::RunVelocityMonitor()
+{
+	while(true)
+	{
+		if(VelocityMonitorEnable_)
+		{
+			double vL = Mark1FPGA::VelocityLeft;
+			double vR = Mark1FPGA::VelocityRight;
+			std::ostringstream s;
+			s << "Velocity " << vL << " " << vR;
+			string s1(s.str());
+			AcknowledgeMessage(s1);
+		}
+
+		usleep(VELOCITY_TRANSMIT_INTERVAL_US);
+	}
+}
+
+void Legs::SetVelocityMonitorEnable(bool Enable)
+{
+	VelocityMonitorEnable_ = Enable;
 }
 
 int Legs::UpdateDataBlock()
@@ -96,18 +129,23 @@ int Legs::UpdateDataBlock()
 
 int Legs::AcknowledgeMessage(std::string AckMessage)
 {
-	AddToLog("LegsThread", "Got New Leg Params - Sending Message Acknowledge", true);
+	try
+	{
+		AddToLog("LegsThread", AckMessage, true);
+		string s = "LegsThread : " + AckMessage;
 
-	char *msg = new char[AckMessage.size()];
-	strcpy(msg, AckMessage.c_str());
+		strcpy(&bufResponse_[0], s.c_str());
+		strcat(bufResponse_, "\r");
+		strcat(bufResponse_, "\n");
+		write(UARTfd_,&bufResponse_,strlen(bufResponse_));
 
-	strcpy(&bufResponse_[0], msg);
-	strcat(bufResponse_, "\r");
-	strcat(bufResponse_, "\n");
-	write(UARTfd_,&bufResponse_,strlen(bufResponse_));
+	}
+	catch(...)
+	{
+		printf("LegsThread Ack Message Error");
+	}
 
 	return 1;
-
 }
 
 
@@ -120,9 +158,7 @@ int Legs::AddToLog(std::string Source, std::string Content, bool AlsoPrintf)
 	if(AlsoPrintf)
 	{
 		std::string s = "Print: " + entry + "\r";
-		char *c = new char[s.size()];
-		strcpy(c, s.c_str());
-		printf(c);
+		printf(s.c_str());
 	}
 
 	return 1;

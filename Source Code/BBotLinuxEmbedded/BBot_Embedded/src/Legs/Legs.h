@@ -17,12 +17,14 @@
 #include <unistd.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <sstream> 		//For std::ostringstream
 
 
 #include <BBoneConstants.h>
 
 class Legs {
 	friend void* pstart_Legs(void*);
+	friend void* pstart_LegsVelocityMonitor(void* ref);
 
 private:
 
@@ -51,6 +53,16 @@ private:
 	int CreateLogOutputFile();
 
 	void Run();
+	void RunVelocityMonitor();
+	bool VelocityMonitorEnable_;
+
+    unsigned char mode;
+    unsigned char bitsPerWord;
+    unsigned int speed;
+    int spifd;
+
+    int spiOpen(std::string devspi);
+    int spiClose();
 
 
 public:
@@ -61,19 +73,9 @@ public:
 	int SetControlSource(bool Source);
 	int SetSem();
 
-
-public:
-
     int spiWriteRead( unsigned char *data, int length);
 
-private:
-    unsigned char mode;
-    unsigned char bitsPerWord;
-    unsigned int speed;
-    int spifd;
-
-    int spiOpen(std::string devspi);
-    int spiClose();
+    void SetVelocityMonitorEnable(bool Enable);
 
 };
 
