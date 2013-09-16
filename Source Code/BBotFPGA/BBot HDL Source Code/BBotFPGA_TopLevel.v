@@ -149,9 +149,9 @@ module BBotFPGA_TopLevel(
 	
 	reg Alarm_reg;
 	
-	reg [63:0] ClockEdgeCounter;
+	reg [3:0] ClockEdgeCounter;
 	reg [31:0] HBeatCounter;
-
+	reg HalfClock;
 
 //-----------------------------------------------------------------------------------------
 //	Main Always Block
@@ -192,18 +192,16 @@ module BBotFPGA_TopLevel(
 			//Mode 0
 			if (DipSW3 == 1'h0 && DipSW2 == 1'h0 && DipSW1 == 1'h0 && DipSW0 == 1'h0)
 			begin
-				LED_reg[4:0] <= CurrentEncoderCount_Left_reg[11:7];
-				LED_reg[5] <= Encoder_L_A_In;
-				LED_reg[6] <= Encoder_L_B_In;
-				LED_reg[7] <= 1'b1;
+				LED_reg[5:0] <= CurrentEncoderCount_Left_reg[12:7];
+				LED_reg[6] <= Encoder_L_A_In;
+				LED_reg[7] <= Encoder_L_B_In;
 			end
 			//Mode 1
 			else if (DipSW3 == 1'h0 && DipSW2 == 1'h0 && DipSW1 == 1'h0 && DipSW0 == 1'h1)
 			begin
-				LED_reg[4:0] <= CurrentEncoderCount_Right_reg[11:7];
-				LED_reg[5] <= Encoder_R_A_In;
-				LED_reg[6] <= Encoder_R_B_In;
-				LED_reg[7] <= 1'b0;
+				LED_reg[5:0] <= CurrentEncoderCount_Right_reg[12:7];
+				LED_reg[6] <= Encoder_R_A_In;
+				LED_reg[7] <= Encoder_R_B_In;
 			end
 			//Mode 2
 			else if (DipSW3 == 1'h0 && DipSW2 == 1'h0 && DipSW1 == 1'h1 && DipSW0 == 1'h0)
@@ -231,48 +229,65 @@ module BBotFPGA_TopLevel(
 			//Mode 8
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h0 && DipSW1 == 1'h0 && DipSW0 == 1'h0)
 			begin
-				LED_reg[7:0] <= SPI_do_o_reg[7:0];
+				LED_reg[7:0] <= CurrentEncoderCount_Right_reg[7:0];
 			end
 			//Mode 9
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h0 && DipSW1 == 1'h0 && DipSW0 == 1'h1)
 			begin				
-				LED_reg[7:0] <= SPI_do_o_reg[31:24];
+				LED_reg[7:0] <= CurrentEncoderCount_Right_reg[15:8];
 			end
 			//Mode 10
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h0 && DipSW1 == 1'h1 && DipSW0 == 1'h0)
 			begin				
-				LED_reg[7:0] <= SPI_do_o_reg[39:32];
+				LED_reg[7:0] <= CurrentEncoderCount_Right_reg[23:16];
 			end
 			//Mode 11
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h0 && DipSW1 == 1'h1 && DipSW0 == 1'h1)
 			begin				
-				LED_reg[7:0] <= SPI_do_o_reg[47:40];
+				LED_reg[7:0] <= CurrentEncoderCount_Right_reg[31:24];
 			end
 			
 			//Mode 12
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h1 && DipSW1 == 1'h0 && DipSW0 == 1'h0)
 			begin
-				LED_reg[7:0] <= RightMotorSpeed_50MHzPulses[7:0];
+				LED_reg[7:0] <= CurrentEncoderCount_Left_reg[7:0];
 			end
 			//Mode 13
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h1 && DipSW1 == 1'h0 && DipSW0 == 1'h1)
 			begin				
-				LED_reg[7:0] <= RightMotorSpeed_50MHzPulses[15:8];
+				LED_reg[7:0] <= CurrentEncoderCount_Left_reg[15:8];
 			end
 			//Mode 14
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h1 && DipSW1 == 1'h1 && DipSW0 == 1'h0)
 			begin				
-				LED_reg[7:0] <= RightMotorSpeed_50MHzPulses[23:16];
+				LED_reg[7:0] <= CurrentEncoderCount_Left_reg[23:16];
 			end
 			//Mode 15
 			else if (DipSW3 == 1'h1 && DipSW2 == 1'h1 && DipSW1 == 1'h1 && DipSW0 == 1'h1)
 			begin				
-				LED_reg[7:0] <= RightMotorSpeed_50MHzPulses[31:24];
+				LED_reg[7:0] <= CurrentEncoderCount_Left_reg[31:24];
 			end
-				
+						
+			//Make a divided down clock to send into the encoder quadrature block
+			//This is an effort to figure out a timing closure problem with 
+			//the SimpleQuadratureCounter block...
+			if (ClockEdgeCounter == 4'h0)
+			begin
+				//Toggle HBeat
+				HalfClock <= ~HalfClock;
+				ClockEdgeCounter <= 4'h3;
+				//Grab the current count
+				CurrentEncoderCount_Left_reg[31:0] <= CurrentEncoderCount_Left[31:0];
+				CurrentEncoderCount_Right_reg[31:0] <= CurrentEncoderCount_Right[31:0];
+			end
+			else
+			begin
+				ClockEdgeCounter <= ClockEdgeCounter - 1;
+			end
+			
 			//temp1 <= 1'b0;
 			//temp2 <= 1'b0;
-			temp3 <= 1'b0;
+			temp3 <= HalfClock;
 			
 			if(~SYS_SPI_SS)
 			begin
@@ -329,16 +344,12 @@ module BBotFPGA_TopLevel(
 				Alarm_reg 								<= SPI_do_o_reg[41];
 				
 			end
-		
+						
 			//Convert speed percent set point to pulses for our 4 RC channels
 			LeftMotorSpeed_50MHzPulses <= RC_LowLimit_Pulses + (LeftMotorSpeed_Percent * RC_RangeMultiplier);
 			RightMotorSpeed_50MHzPulses <= RC_LowLimit_Pulses + (RightMotorSpeed_Percent * RC_RangeMultiplier);
 			CameraPanPosition_50MHzPulses <= RC_LowLimit_Pulses + (CameraPanPosition_Percent * RC_RangeMultiplier);
 			CameraTiltPosition_50MHzPulses <= RC_LowLimit_Pulses + (CameraTiltPosition_Percent * RC_RangeMultiplier);
-			
-			//Grab the current count
-			CurrentEncoderCount_Left_reg[31:0] <= CurrentEncoderCount_Left[31:0];
-			CurrentEncoderCount_Right_reg[31:0] <= CurrentEncoderCount_Right[31:0];
 			
 			//Increment a counter to keep track of how long it's been since a slave slect latch
 			//This number is then used by the embedded software to figure out wheel speeds
@@ -359,10 +370,14 @@ module BBotFPGA_TopLevel(
 	//Here we latch the data being sent back to the BeagleBone
 	always @(negedge SYS_SPI_SS)
 	begin
-			SPI_di_i_reg[31:0] <= SPI_ChipSelectIntervalCounter_reg[31:0];
-			SPI_di_i_reg[63:32] <= CurrentEncoderCount_Left_reg[31:0];				
-			SPI_di_i_reg[95:64] <= CurrentEncoderCount_Right_reg[31:0];
-			SPI_di_i_reg[127:96] <= 32'hBA5EBA11;
+			if( Reset_l == 1)
+			begin
+				//Load reg to be sent back to BeagleBone Black
+				SPI_di_i_reg[31:0] <= SPI_ChipSelectIntervalCounter_reg[31:0];
+				SPI_di_i_reg[63:32] <= CurrentEncoderCount_Left_reg[31:0];				
+				SPI_di_i_reg[95:64] <= CurrentEncoderCount_Right_reg[31:0];
+				SPI_di_i_reg[127:96] <= 32'hDEADBEEF;
+			end
 	end
 	
 
@@ -508,27 +523,6 @@ module BBotFPGA_TopLevel(
 		.sh_reg_dbg_o()
 	);
 		
-	
-	//Count the left motor's encoder
-	BBot_SimpleQuadratureCounter QuadratureCounter_LeftMotor(
-		.clock(OSC_FPGA),
-		.reset_l(Reset_l),
-		.A(Encoder_L_A_In),
-		.B(Encoder_L_B_In),
-		.CurrentCount(CurrentEncoderCount_Left),
-		.Direction(Direction_Left)
-	);
-		
-	//Count the right motor's encoder
-	BBot_SimpleQuadratureCounter QuadratureCounter_RightMotor(
-		.clock(OSC_FPGA),
-		.reset_l(Reset_l),
-		.A(Encoder_R_A_In),
-		.B(Encoder_R_B_In),
-		.CurrentCount(CurrentEncoderCount_Right),
-		.Direction(Direction_Right)
-	);	
-	
 	//Signal Generator for left motor
 	//Here the period is 1.1E6 clocks because our oscillator is at 50MHz
 	//This means the period is 22ms - required by motor driver chips
@@ -539,7 +533,6 @@ module BBotFPGA_TopLevel(
 		.rst(~Reset_l),
 		.Period(32'd1100000),
 		.Pulse_Width(LeftMotorSpeed_50MHzPulses),
-		//.ENABLE(RC_MotorSignalSourceSelect),
 		.ENABLE(1'h1),
 		.Pulse(RC_MotorPulseGen_Left)
 	);
@@ -550,7 +543,6 @@ module BBotFPGA_TopLevel(
 		.rst(~Reset_l),
 		.Period(32'd1100000),
 		.Pulse_Width(RightMotorSpeed_50MHzPulses),
-		//.ENABLE(RC_MotorSignalSourceSelect),
 		.ENABLE(1'h1),
 		.Pulse(RC_MotorPulseGen_Right)
 	);
@@ -561,7 +553,6 @@ module BBotFPGA_TopLevel(
 		.rst(~Reset_l),
 		.Period(32'd1100000),
 		.Pulse_Width(CameraPanPosition_50MHzPulses),
-		//.ENABLE(RC_CameraSignalSourceSelect),
 		.ENABLE(1'h1),
 		.Pulse(RC_CamPanPulseGen)
 	);
@@ -572,9 +563,28 @@ module BBotFPGA_TopLevel(
 		.rst(~Reset_l),
 		.Period(32'd1100000),
 		.Pulse_Width(CameraTiltPosition_50MHzPulses),
-		//.ENABLE(RC_CameraSignalSourceSelect),
 		.ENABLE(1'h1),
 		.Pulse(RC_CamTiltPulseGen)
 	);
+	
+	//Count the left motor's encoder
+	BBot_SimpleQuadratureCounter QuadratureCounter_LeftMotor(
+		.clock(HalfClock),
+		.reset_l(Reset_l),
+		.A(Encoder_L_A_In),
+		.B(Encoder_L_B_In),
+		.CurrentCount(CurrentEncoderCount_Left),
+		.Direction(Direction_Left)
+	);
+		
+	//Count the right motor's encoder
+	BBot_SimpleQuadratureCounter QuadratureCounter_RightMotor(
+		.clock(HalfClock),
+		.reset_l(Reset_l),
+		.A(Encoder_R_A_In),
+		.B(Encoder_R_B_In),
+		.CurrentCount(CurrentEncoderCount_Right),
+		.Direction(Direction_Right)
+	);	
 	
 endmodule

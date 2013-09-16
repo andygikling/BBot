@@ -32,22 +32,20 @@ reg APrevious;
 reg ACurrent;
 reg BCurrent;
 reg[31:0] Count;
+reg[31:0] CountOutput;
 reg Dir;
+reg DirectionOutput;
 
 always @(posedge clock) begin
 
 	if (reset_l == 1'b0)
 	begin
-		
-		Count[31:0] <= 32'h80000000;
-	
+		Count[31:0] <= 32'h80000000;	
 	end
 	else
 	begin
-		
 		if( (APrevious != A) || (BPrevious != B))
 		begin
-
 			//Every time A or B changes evaluate this XOR
 			//If the result is 1 we count up if it's 0 we count down
 			if (A ^ BPrevious)
@@ -60,14 +58,19 @@ always @(posedge clock) begin
 				Dir <= 1'b0;
 			end
 		end
-		
-		BPrevious <= B;
-		APrevious <= A;
-		
 	end
-
 end
 
-	assign CurrentCount[31:0] = Count[31:0];
-	assign Direction = Dir;
+always @(negedge clock) begin
+		//On the negedge of clock set the previous values and 
+		//send the count out the door
+		APrevious <= A;		
+		BPrevious <= B;
+		CountOutput <= Count;
+		DirectionOutput <= Dir;
+end
+
+assign CurrentCount = CountOutput;
+assign Direction = DirectionOutput;
+
 endmodule
