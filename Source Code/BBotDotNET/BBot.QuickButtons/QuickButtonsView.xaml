@@ -45,19 +45,19 @@
                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                                 Height="Auto" Margin="5"
                                 IsChecked="{Binding Path=QuickButtonsModel.EnableDebugScreenOverlay, Mode=TwoWay}" Width="Auto"/>
-                        <ComboBox Grid.ColumnSpan="1" Grid.Column="1" SelectedIndex="{Binding Path=QuickButtonsModel.DebugOverlayNumber, Mode=TwoWay}" Margin="5" Grid.Row="1">
+                        <ComboBox Grid.ColumnSpan="1" Grid.Column="1" SelectedIndex="{Binding Path=QuickButtonsModel.DebugOverlayNumber, Mode=TwoWay}" Margin="5" Grid.Row="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
                             <ComboBoxItem Name="cbi1">Listen Thread</ComboBoxItem>
                             <ComboBoxItem Name="cbi2">Voice Thread</ComboBoxItem>
                             <ComboBoxItem Name="cbi3">Legs Thread</ComboBoxItem>
                             <ComboBoxItem Name="cbi4">Mark1FPGA Thread</ComboBoxItem>
                         </ComboBox>
-                        <ToggleSwitch:HorizontalToggleSwitch Grid.Column="0" Grid.Row="2"
+                        <ToggleSwitch:HorizontalToggleSwitch Grid.Column="0" Grid.Row="3"
                                 UncheckedContent="Alarm Off" CheckedContent="Alarm On" CheckedBackground="{StaticResource LightBlueBrush}" 
                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                                 Height="Auto" Margin="5"
                                 IsChecked="{Binding Path=QuickButtonsModel.EnableAlarm, Mode=TwoWay}" Width="Auto"/>
                         
-                        <ToggleSwitch:HorizontalToggleSwitch Grid.Column="0" Grid.Row="3"
+                        <ToggleSwitch:HorizontalToggleSwitch Grid.Column="0" Grid.Row="2"
                                 UncheckedContent="Logger Off" CheckedContent="Logger On" CheckedBackground="{StaticResource LightBlueBrush}" 
                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                                 Height="Auto" Margin="5"

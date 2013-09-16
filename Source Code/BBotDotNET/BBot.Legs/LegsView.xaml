@@ -44,7 +44,7 @@
                             <RowDefinition Height=".5*"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="50"/>
                             <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="40"/>
@@ -131,14 +131,33 @@
                         <Label Height="28" HorizontalAlignment="Center" Margin="22,0,28,0" Name="label2" VerticalAlignment="Top" Grid.Column="6" HorizontalContentAlignment="Center"
                             Content="{Binding Path=LegsModel.ThrottleRight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="10" Grid.RowSpan="2"/>
 
-                        <ToggleSwitch:HorizontalToggleSwitch Grid.Row="1" Grid.Column="7" IsChecked="{Binding LegsModel.ControlSignalSourceSelect, Mode=TwoWay}" 
+                        <ToggleSwitch:HorizontalToggleSwitch Grid.Row="4" Grid.Column="7" IsChecked="{Binding LegsModel.ControlSignalSourceSelect, Mode=TwoWay}" 
                             CheckedContent="Software" UncheckedContent="DX6i Remote" Height="25" Margin="10,5,0,0" Width="190" HorizontalAlignment="Left" VerticalAlignment="Top"
                             CheckedBackground="{StaticResource LightBlueBrush}">
                         </ToggleSwitch:HorizontalToggleSwitch>
-                        
-                        <ToggleSwitch:HorizontalToggleSwitch Grid.Row="4" Grid.Column="7" IsChecked="{Binding LegsModel.LeapMotionEnable, Mode=TwoWay}" 
-                        	CheckedContent="Leap Motion Enabled" UncheckedContent="Leap Motion Disabled" Height="25" Margin="10,0,0,5" Width="190" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+
+                        <ToggleSwitch:HorizontalToggleSwitch Grid.Row="3" Grid.Column="7" IsChecked="{Binding LegsModel.VelocityMonitorEnable, Mode=TwoWay}" 
+                        	CheckedContent="Velocity Monitor On" UncheckedContent="Velocity Monitor Off" Height="25" Margin="10,5,0,5" Width="190" HorizontalAlignment="Left" VerticalAlignment="Top"
                         	CheckedBackground="{StaticResource LightBlueBrush}"/>
+
+                        <ToggleSwitch:HorizontalToggleSwitch Grid.Row="5" Grid.Column="7" IsChecked="{Binding LegsModel.LeapMotionEnable, Mode=TwoWay}" 
+                        	CheckedContent="Leap Motion Enabled" UncheckedContent="Leap Motion Disabled" Height="25" Margin="10,5,0,5" Width="190" HorizontalAlignment="Left" VerticalAlignment="Top"
+                        	CheckedBackground="{StaticResource LightBlueBrush}"/>
+                        
+                        <Label Content="Left Speed:" Grid.Column="7" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center"
+                               Foreground="{StaticResource LightBlueBrush}" Margin="8,0,0,0"/>
+                        
+                        <Label Content="Right Speed:" Grid.Column="7" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center"
+                               Foreground="{StaticResource LightBlueBrush}"/>
+                        
+                        <Label Grid.Column="7" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center"
+                               Foreground="{StaticResource LightBlueBrush}"
+                               Content="{Binding Path=LegsModel.LeftMotorSpeed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="80,0,0,0" FontSize="18" Width="150" Height="30"/>
+
+                        <Label Grid.Column="7" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center"
+                               Foreground="{StaticResource LightBlueBrush}"
+                               Content="{Binding Path=LegsModel.RightMotorSpeed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="80,0,0,0" Width="150" Height="30" FontSize="18"/>
+                        
 
                     </Grid>
                 </TabItem>

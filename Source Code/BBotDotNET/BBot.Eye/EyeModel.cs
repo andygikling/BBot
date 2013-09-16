@@ -10,6 +10,7 @@ namespace BBot
     {
         IRobotConnection connection;
         int panPosition, tiltPosition;
+        bool panTiltSoftwareControlEnable;
 
         const string op_EyeRemotePanTiltEnable = "E00";
         const string op_EyeSoftwarePanTiltEnable = "E01";
@@ -52,6 +53,19 @@ namespace BBot
             }
         }
 
+        public bool PanTiltSoftwareControlEnable
+        {
+            get
+            {
+                return panTiltSoftwareControlEnable;
+            }
+            set
+            {
+                panTiltSoftwareControlEnable = value;
+                SendPanTiltModeSelect(value);
+            }
+        }
+
         #endregion
 
         #region IRobotWidget Members
@@ -79,10 +93,10 @@ namespace BBot
 
         #region Methods
 
-        void SendPanTiltModeSelect(bool SoftwarePanTiltMode)
+        void SendPanTiltModeSelect(bool SoftwarePanTiltEnable)
         {
             string msg = "";
-            if (SoftwarePanTiltMode)
+            if (SoftwarePanTiltEnable)
             {
                 msg += op_EyeSoftwarePanTiltEnable;
             }

@@ -32,7 +32,7 @@
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
                         <TextBox x:Name="txt_COMPortNum" TextWrapping="Wrap" Grid.Column="1" Height="22" Margin="1,10,0,9" BorderThickness="2" BorderBrush="#1A1F1E" TextAlignment="Center" Background="#FFF0F0F0"
-                                 Foreground="{StaticResource LightBlueBrush}" VerticalAlignment="Center">
+                                 Foreground="{StaticResource LightBlueBrush}" VerticalAlignment="Center" VerticalContentAlignment="Center">
                             <TextBox.Text>
                                 <Binding Path="ComPortNumber" Mode="TwoWay"/>
                             </TextBox.Text>

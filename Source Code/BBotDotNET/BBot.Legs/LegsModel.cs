@@ -12,6 +12,9 @@ namespace BBot
         int throttleLeft, throttleRight, throttleLeftMixed, throttleRightMixed;
         int throttleInterval;
         bool controlSignalSourceSelect;
+        bool velocityMonitorEnable;
+        string leftMotorSpeed;
+        string rightMotorSpeed;
         
         //LeapMotion related vaiables
         bool leapMotionEnable;
@@ -20,7 +23,6 @@ namespace BBot
         const int Y_TRAVEL = 250;
         const int Z_TRAVEL = 300;
 
-
         BBotLeapMotionWrapper leapWrapper;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -28,6 +30,7 @@ namespace BBot
         private const string op_LegsWalk = "L00";
         private const string op_Control_Select_DX6i = "L01";
         private const string op_Control_Select_Software = "L02";
+        private const string op_Velocity_Monitor = "L03";
         private const string op_Termination = "\r";
 
         int motorMixedLeft, motorMixedRight;
@@ -178,6 +181,45 @@ namespace BBot
             }
         }
 
+        public bool VelocityMonitorEnable
+        {
+            get
+            {
+                return velocityMonitorEnable;
+            }
+            set
+            {
+                velocityMonitorEnable = value;
+                SendVelocityMonitor(value);
+            }
+        }
+
+        public string LeftMotorSpeed
+        {
+            get
+            {
+                return leftMotorSpeed;
+            }
+            set
+            {
+                leftMotorSpeed = value;
+                NotifyPropertyChanged("LeftMotorSpeed");
+            }
+        }
+
+        public string RightMotorSpeed
+        {
+            get
+            {
+                return rightMotorSpeed;
+            }
+            set
+            {
+                rightMotorSpeed = value;
+                NotifyPropertyChanged("RightMotorSpeed");
+            }
+        }
+
         public bool LeapMotionThread_StopRead { get; set; }
 
         #region IRobotWidget Members
@@ -186,14 +228,35 @@ namespace BBot
         {
             connection.SendMessage( Message );
         }
+
         public void ReceiveMessage( string Message )
         {
-            //Not needed yet
+            if (Message.Contains("Velocity"))
+            {
+                //This message is sent with a \r at the end - remove it first
+                Message = Message.Remove(Message.Length - 1, 1);
+                string[] words = Message.Split(' ');
+                //Sometimes the embedded reports incorrect velocities (it needs a fix...)
+                //Don't display results in scientific notation because they are wrong... ie: 1.12345e+100
+                //Also max speed reported should not be over 1100mm/s.  Filter values greater...
+                if(Convert.ToDouble(words[3]) < 1100)
+                    LeftMotorSpeed = Convert.ToString(words[3]) + " mm/s";
+                if (Convert.ToDouble(words[4]) < 1100)
+                    RightMotorSpeed = Convert.ToString(words[4]) + " mm/s";
+            
+            }
         }
+
+        void connection_MessageReceived(object sender, StringEventArgs e)
+        {
+            ReceiveMessage(e.Message);
+        }
+
         public void RouteMessages( IRobotConnection BotConnection )
         {
-            //Not needed yet
+            connection.MessageReceived += connection_MessageReceived;
         }
+
         public void InFocus( bool IsFocused )
         {
             //Not needed yet
@@ -289,6 +352,18 @@ namespace BBot
             SendMessage(msg);
         }
 
+        void SendVelocityMonitor(bool Enable)
+        {
+            if (Enable)
+            {
+                SendMessage(op_Velocity_Monitor + " 1" + op_Termination);
+            }
+            else
+            {
+                SendMessage(op_Velocity_Monitor + " 0" + op_Termination);
+            }
+        }
+
         private void NotifyPropertyChanged( String propertyName = "" )
         {
             if( PropertyChanged != null )
@@ -304,7 +379,7 @@ namespace BBot
 
             while (!LeapMotionThread_StopRead)
             {
-                System.Threading.Thread.Sleep(50);
+                System.Threading.Thread.Sleep(100);
                 System.Diagnostics.Trace.WriteLine("BBotLeapRead - X=" + (leapWrapper.Hand_X_Position.ToString() +
                                                     " Y=" + leapWrapper.Hand_Y_Position.ToString() +
                                                     " Z=" + leapWrapper.Hand_Z_Position.ToString() +

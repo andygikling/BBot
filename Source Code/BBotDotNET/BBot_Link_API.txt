@@ -39,6 +39,9 @@ Command Code L
 		2nd = right throttle (0 to 200 percent where 100 is topped and >100 is forward)
 01= Set Control to DX6i Remote
 02= Set Control to Software
+03= Set Velocity Monitor Enable
+		Params
+		1st = 1 for enable, 0 for disable
 
 
 Custom (Buttons mostly)

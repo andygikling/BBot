@@ -76,12 +76,13 @@
                         <Button x:Name="btn_Voice_SendSettings" Content="Send Settings" Grid.Row="0" Grid.Column="2" Click="btn_Voice_SendSettings_Click" Margin="5,8,0,8" Height="24" HorizontalAlignment="Left" VerticalAlignment="Center" Width="90"/>
 
                         <Button x:Name="btn_Voice_Stop" Content="Stop Talking" Grid.Row="1" Click="btn_Voice_Stop_Click" Margin="5,8,0,8" Height="24" Width="90" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2"/>
-                        <ComboBox x:Name="btn_Voice_VoiceType" Grid.Column="1" Grid.Row="1" SelectedIndex="{Binding Path=VoiceModel.VoiceNumber, Mode=TwoWay}" Margin="5,8,0,8" Width="166" Height="24" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <ComboBox x:Name="btn_Voice_VoiceType" Grid.Column="1" Grid.Row="1" SelectedIndex="{Binding Path=VoiceModel.VoiceNumber, Mode=TwoWay}" Margin="5,8,0,8" Width="166" Height="24" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                  VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
                             <ComboBoxItem Name="cbi1">Male Higher Voice</ComboBoxItem>
                             <ComboBoxItem Name="cbi2">Male Lower Voice</ComboBoxItem>
                             <ComboBoxItem Name="cbi3">Woman</ComboBoxItem>
                             <ComboBoxItem Name="cbi4">Boy</ComboBoxItem>
-                            <ComboBoxItem Name="cbi5">Stephen</ComboBoxItem>
+                            <ComboBoxItem Name="cbi5">Stephen Hawking</ComboBoxItem>
                             <ComboBoxItem Name="cbi6">Little Boy</ComboBoxItem>
                             <ComboBoxItem Name="cbi7">Robot</ComboBoxItem>
                             <ComboBoxItem Name="cbi8">Girl</ComboBoxItem>

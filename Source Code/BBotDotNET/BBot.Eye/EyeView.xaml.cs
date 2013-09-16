@@ -67,7 +67,7 @@ namespace BBot
             WebCamCtrl.PictureFormat = ImageFormat.Jpeg;
 
             WebCamCtrl.FrameRate = 30;
-            WebCamCtrl.FrameSize = new System.Drawing.Size(320, 240);
+            WebCamCtrl.FrameSize = new System.Drawing.Size(266, 200);
 
             // Find a/v devices connected to the machine.
             FindDevices();
@@ -99,7 +99,7 @@ namespace BBot
             try
             {
                 // Display webcam video on control.
-                WebCamCtrl.FrameSize = new System.Drawing.Size(480, 360);
+                WebCamCtrl.FrameSize = new System.Drawing.Size(450, 310);
                 WebCamCtrl.StartCapture();
             }
             catch (Microsoft.Expression.Encoder.SystemErrorException ex)
