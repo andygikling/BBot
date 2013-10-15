@@ -14,3 +14,9 @@ http://www.valentfx.com/wiki
 Great BeagleBone Black tutorials can be found at Derek Molloy's YouTube page:
 http://www.youtube.com/user/DerekMolloyDCU
 
+Content about BBot found on the world wide spider webs (videos, pictures, etc.):
+http://makerfaire.com/makers/bbot-the-beaglebone-fpga-remote-control-robot/
+http://www.youtube.com/watch?v=rXIza7qZ1fY&feature=c4-overview&list=UUwzM43m5TSsxNPeOnCn3Y3Q
+http://www.youtube.com/watch?v=cL3pb6FwvLE
+http://valentfx.com/logi-blog/item/the-bbot-robot-reference-design-will-be-on-display-at-make-faire-2013-in-nyc
+http://makerfaire.com/makers/embedded-linux-meets-fpga-capes-just-imagine-the-diy-possibilities/
