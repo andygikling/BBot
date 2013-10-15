@@ -6,7 +6,8 @@ BBot! An open source, beer serving robot reference design that includes a .NET W
 ***Maker Faire NYC 2013 Audience*** 
 Currently, there isn't much formal documentation on this repository sorry.  Check back in the first week of October 2013 for major commits of the formal documentation.
 
-More information about BBot can be found at the ValentFx website as well: 
+More information about BBot can be found at the ValentFx website as well:
+ 
 1. http://www.valentfx.com 
 
 2. http://www.valentfx.com/logi-blog 
